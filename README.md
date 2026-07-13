@@ -1,10 +1,14 @@
 # coding-discipline
 
+**English** → [README_EN.md](README_EN.md)
+
 > Lean-but-sharp coding-discipline skills for AI coding agents —— 一套「瘦但有牙」的通用编程纪律 skill + hooks,装一次、全局生效、跨项目、跨 AI 编程助手(Claude Code · Codex)通用。
 
 管的是「**怎么把活干好**」:设计先行、先写测试、先找根因、按优先级评审、拿证据再说完成、规矩地走 git 流程。每条 skill 只留**模型不知道的硬纪律**(~30 行),删掉解释和废话——所以叫「瘦但有牙」。
 
 ## 安装(作为 Claude Code plugin)
+
+> ⚠️ coding-discipline 走**自托管分发**——不在官方插件商店里,而是把**本仓库当作你的插件源**。下面第一行就是「添加这个源」,第二行才是「安装」。这是完全正常、能用的第三方安装方式。
 
 ```
 /plugin marketplace add chipfighter/coding-discipline
@@ -61,6 +65,10 @@ cat plugins/coding-discipline/hooks/skill-discipline.md >> ~/.codex/AGENTS.md   
 - **不需要 jq** —— 所有 JSON 转义 / 解析都用纯 bash 完成,零外部依赖,Windows / macOS / Linux 全平台一致。
 
 > 跨平台原理:hook 脚本用**无扩展名**文件名(避开 Claude Code 在 Windows 上对含 `.sh` 命令自动加 `bash` 前缀);由 `run-hook.cmd`(既是合法 batch 又是合法 bash 的 polyglot)分发——cmd.exe 走批处理段找 git-bash,Unix shell 走末尾的 bash 段。此机制照搬官方 superpowers 的经过验证的做法。
+
+## 致谢
+
+本项目的**纪律理念**与**跨平台 hook 机制**(polyglot `run-hook.cmd`、SessionStart 注入、纯 bash 无 jq 的转义做法)借鉴自 [superpowers](https://github.com/obra/superpowers)(by Jesse Vincent,MIT)。coding-discipline 把那套思路收敛成一组「瘦但有牙」的中文纪律 skill——每条只留模型不知道的硬规矩,并补齐了 Windows / git-bash 适配。感谢 superpowers 趟平了路。
 
 ## License
 
