@@ -1,33 +1,42 @@
 #!/usr/bin/env bash
-# SessionStart hook：把「技能纪律」注入每个 session（matcher: startup|clear|compact）。
-# 读同目录的 skill-discipline.md，用**纯 bash 参数替换**转义成 JSON（不依赖 jq），按平台输出。
-# 跨平台机制仿 superpowers：Windows 经 run-hook.cmd 调 git-bash，Unix 直接 bash。
+# SessionStart hook（所有平台）：① 注入「技能纪律」总纲；② Tier 1 计数——记一条「会话激活」。
+# 读同目录 skill-discipline.md，纯 bash 转义成 JSON（无 jq），按平台切换输出字段。
+# 会话级计数在 Codex / Cursor / Claude Code 通用（只要该平台会跑 SessionStart 钩子）。
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "${SCRIPT_DIR}/usage-lib.sh"
+
 body="$(cat "${SCRIPT_DIR}/skill-discipline.md" 2>/dev/null \
   || echo '（技能纪律文件缺失：hooks/skill-discipline.md）')"
 
-# JSON 字符串转义：每个 ${s//old/new} 是一趟 C 级替换，快且零外部依赖。
+# 总纲保持平台中立；这里按平台补一句「skill 在本平台怎么触发」的机制说明。
+platform="$(cd_detect_platform)"
+case "$platform" in
+  claude-code) mech='> 本平台：用 **Skill 工具**调用对应 skill（别把 SKILL.md 当普通文件 cat 一遍就算触发）。' ;;
+  codex)       mech='> 本平台：skill 由 Codex 按描述**自动加载**，或在提示里用 `$skill-name` 显式触发；别自己 cat 正文。' ;;
+  *)           mech='' ;;
+esac
+
+# JSON 字符串转义（纯 bash 参数替换，无 jq）。
 escape_for_json() {
     local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\n'/\\n}"
-    s="${s//$'\r'/\\r}"
-    s="${s//$'\t'/\\t}"
+    s="${s//\\/\\\\}"; s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"; s="${s//$'\r'/\\r}"; s="${s//$'\t'/\\t}"
     printf '%s' "$s"
 }
 
 wrapped="<EXTREMELY_IMPORTANT>
 ${body}
+${mech}
 </EXTREMELY_IMPORTANT>"
 esc="$(escape_for_json "$wrapped")"
 
-# 用 printf 而非 heredoc（规避 bash 5.3+ heredoc 挂起 bug: obra/superpowers#571）。
-# 默认按 Claude Code 约定输出 hookSpecificOutput.additionalContext——
-# 这样「plugin 安装」（有 CLAUDE_PLUGIN_ROOT）和「手动安装」（无该变量）都能被读到。
-# Cursor 用 additional_context；Copilot/SDK 用顶层 additionalContext——按各自环境变量切换。
+# Tier 1 计数：写文件（不影响下面 stdout 的注入 JSON）。
+cd_write_record session "" "$PWD"
+
+# 注入：Cursor 用 additional_context；Copilot/SDK 用顶层 additionalContext；
+# 其余（Claude Code / Codex 及默认）用 hookSpecificOutput.additionalContext。
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
   printf '{"additional_context":"%s"}\n' "$esc"
 elif [ -n "${COPILOT_CLI:-}" ]; then
