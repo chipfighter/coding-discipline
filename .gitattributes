@@ -2,7 +2,7 @@
 # 无扩展名脚本按文件名匹配(不带斜杠 = 全仓库任意目录生效;带斜杠会错误锚定到仓库根)。
 *.sh                  text eol=lf
 session-start-skills  text eol=lf
-log-skill-usage       text eol=lf
+log-usage             text eol=lf
 
 # polyglot 包装器由 cmd 和 bash 共同解析，强制 LF（现代 cmd.exe 可正常处理 LF）。
 *.cmd  text eol=lf

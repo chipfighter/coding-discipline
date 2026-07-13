@@ -1,6 +1,6 @@
 # coding-discipline
 
-> Lean-but-sharp coding-discipline skills for Claude Code —— 一套「瘦但有牙」的通用编程纪律 skill + hooks,装一次、全局生效、跨项目通用。
+> Lean-but-sharp coding-discipline skills for AI coding agents —— 一套「瘦但有牙」的通用编程纪律 skill + hooks,装一次、全局生效、跨项目、跨 AI 编程助手(Claude Code · Codex)通用。
 
 管的是「**怎么把活干好**」:设计先行、先写测试、先找根因、按优先级评审、拿证据再说完成、规矩地走 git 流程。每条 skill 只留**模型不知道的硬纪律**(~30 行),删掉解释和废话——所以叫「瘦但有牙」。
 
@@ -35,7 +35,25 @@
 ### 2 个 hook(启用 plugin 即生效,无需手改 settings)
 
 - **SessionStart 注入**:每个 session 开场,把一段极短的「技能纪律」总纲注入进来——「哪怕 1% 相关也先调对应 skill」「先流程后实现」「用户指令 / 项目 `CLAUDE.md` 永远压过本纪律」。这是让 skill 被**勤触发**的关键(不靠描述碰运气)。总纲正文在 `hooks/skill-discipline.md`,想改口味直接改它。
-- **用量计数**:每次调 skill 记一行到 `~/.claude/skill-usage.jsonl`(纯本地、不联网)。看统计:`bash hooks/skills-count.sh`。哪条 skill 从没触发过 → 考虑裁掉。
+- **用量计数(跨平台)**:统一记到 `~/.coding-discipline/usage.jsonl`(纯本地、不联网)。两档粒度——**会话激活**按平台记(Codex / Cursor / Claude Code 通用,靠 SessionStart),**按 skill** 明细目前只有 Claude Code 能精确记。看统计:`bash hooks/skills-count.sh`。
+
+## 在 Codex 上用(给用 Codex 的朋友)
+
+同一套 skill 直接能用——Codex 原生支持 `SKILL.md`(`name` / `description` frontmatter),格式和这里一模一样。
+
+**最简(试用):** 把 skills 放进 Codex 技能目录,纪律总纲写进全局 `AGENTS.md`:
+
+```bash
+mkdir -p ~/.agents/skills
+cp -r plugins/coding-discipline/skills/* ~/.agents/skills/            # 1. 装 7 条 skill
+cat plugins/coding-discipline/hooks/skill-discipline.md >> ~/.codex/AGENTS.md   # 2. 注入纪律总纲
+```
+
+之后 Codex 会按描述自动加载对应 skill,或在提示里用 `$skill-name` 显式触发。
+
+**作为 Codex plugin(完整形态):** 仓库已带 `.codex-plugin/plugin.json` + `hooks/hooks-codex.json`(SessionStart 注入,机制同 superpowers);以正式 plugin 装上时,会话激活计数也随之生效。
+
+> **计数说明:** Codex 上只有**会话激活**能统计(且需以 plugin 形态装、让 `hooks-codex.json` 的 SessionStart 跑起来);**按 skill** 精确计数是 Claude Code 专属——Codex 的 skill 是渐进式内部加载、非工具调用,没有可挂钩的按-skill 事件。
 
 ## 依赖
 

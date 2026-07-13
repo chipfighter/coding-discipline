@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# PostToolUse(Skill) hook（Claude Code）：Tier 2 计数——按 skill 记一条 {event:"skill"}。
+# 负载 JSON 从 stdin 进来；无 jq，用 grep/sed 抽 skill 名，交给共享 writer。
+# 任何情况都 exit 0，绝不打断主流程。
+# 注：Codex 的 skill 是渐进式内部加载、非工具调用，没有可挂钩的按-skill 事件——故此钩子仅 Claude Code 用。
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "${SCRIPT_DIR}/usage-lib.sh"
+
+payload="$(cat 2>/dev/null || true)"
+
+extract() {
+  printf '%s' "$payload" \
+    | grep -o "\"$1\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" \
+    | head -1 | sed -E "s/.*:[[:space:]]*\"([^\"]*)\"\$/\1/"
+}
+
+skill="$(extract skill)"; [ -n "$skill" ] || skill="?"
+cwd="$(extract cwd)"
+
+cd_write_record skill "$skill" "$cwd"
+exit 0
