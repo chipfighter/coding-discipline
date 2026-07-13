@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "coding-discipline",
+  "description": "瘦但有牙的通用编程纪律 skill 集 —— 设计先行 / TDD / 系统化调试 / 优先级评审 / 证据式验证 / git 流程。",
+  "owner": {
+    "name": "chipfighter"
+  },
+  "plugins": [
+    {
+      "name": "coding-discipline",
+      "source": "./plugins/coding-discipline",
+      "description": "7 个「瘦但有牙」编程纪律 skill + 每场自动注入的技能纪律 + 被动用量计数。"
+    }
+  ]
+}

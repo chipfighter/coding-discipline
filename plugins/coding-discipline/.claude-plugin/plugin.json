@@ -1,0 +1,20 @@
+{
+  "name": "coding-discipline",
+  "description": "瘦但有牙的通用编程纪律 skill 集:brainstorming(设计先行)/ tdd(红绿重构)/ development(照方案实现)/ systematic-debugging(先根因)/ code-review(优先级评审)/ verify-before-done(证据先于断言)/ git-flow(分支·worktree·收尾)。附每个 session 自动注入的技能纪律 hook + 被动用量计数。",
+  "version": "0.1.0",
+  "author": {
+    "name": "chipfighter"
+  },
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "discipline",
+    "tdd",
+    "debugging",
+    "code-review",
+    "git",
+    "workflow",
+    "brainstorming",
+    "chinese"
+  ]
+}

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# SessionStart hook：把「技能纪律」注入每个 session（matcher: startup|clear|compact）。
+# 读同目录的 skill-discipline.md，用**纯 bash 参数替换**转义成 JSON（不依赖 jq），按平台输出。
+# 跨平台机制仿 superpowers：Windows 经 run-hook.cmd 调 git-bash，Unix 直接 bash。
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+body="$(cat "${SCRIPT_DIR}/skill-discipline.md" 2>/dev/null \
+  || echo '（技能纪律文件缺失：hooks/skill-discipline.md）')"
+
+# JSON 字符串转义：每个 ${s//old/new} 是一趟 C 级替换，快且零外部依赖。
+escape_for_json() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\r'/\\r}"
+    s="${s//$'\t'/\\t}"
+    printf '%s' "$s"
+}
+
+wrapped="<EXTREMELY_IMPORTANT>
+${body}
+</EXTREMELY_IMPORTANT>"
+esc="$(escape_for_json "$wrapped")"
+
+# 用 printf 而非 heredoc（规避 bash 5.3+ heredoc 挂起 bug: obra/superpowers#571）。
+# 默认按 Claude Code 约定输出 hookSpecificOutput.additionalContext——
+# 这样「plugin 安装」（有 CLAUDE_PLUGIN_ROOT）和「手动安装」（无该变量）都能被读到。
+# Cursor 用 additional_context；Copilot/SDK 用顶层 additionalContext——按各自环境变量切换。
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{"additional_context":"%s"}\n' "$esc"
+elif [ -n "${COPILOT_CLI:-}" ]; then
+  printf '{"additionalContext":"%s"}\n' "$esc"
+else
+  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$esc"
+fi
+
+exit 0

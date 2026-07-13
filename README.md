@@ -1,0 +1,49 @@
+# coding-discipline
+
+> Lean-but-sharp coding-discipline skills for Claude Code —— 一套「瘦但有牙」的通用编程纪律 skill + hooks,装一次、全局生效、跨项目通用。
+
+管的是「**怎么把活干好**」:设计先行、先写测试、先找根因、按优先级评审、拿证据再说完成、规矩地走 git 流程。每条 skill 只留**模型不知道的硬纪律**(~30 行),删掉解释和废话——所以叫「瘦但有牙」。
+
+## 安装(作为 Claude Code plugin)
+
+```
+/plugin marketplace add chipfighter/coding-discipline
+/plugin install coding-discipline@coding-discipline
+```
+
+装完**新开一个 session** 才生效(见下面「自动注入」)。想本地先试,把上面第一行换成本地路径:
+
+```
+/plugin marketplace add ~/Desktop/coding-discipline
+/plugin install coding-discipline@coding-discipline
+```
+
+## 里面有什么
+
+### 7 个纪律 skill(按需自动触发)
+
+| skill | 什么时候用 |
+|---|---|
+| `brainstorming` | 做任何创造性的活、动手写代码之前——先问清需求和设计、拿到批准再实现 |
+| `tdd` | 实现功能 / 修 bug 之前——红 → 绿 → 重构,没有失败测试就不写实现 |
+| `development` | 照已定方案实现——拆小块、每块 TDD、省上下文、整合后验证 |
+| `systematic-debugging` | 碰到 bug / 测试失败——先复现、反向追根因、根上修一处、补回归 |
+| `code-review` | 完成一块 / 合并前——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看 |
+| `verify-before-done` | 宣称"做好了"之前——先真跑验证命令、看到输出再下结论 |
+| `git-flow` | 开分支 / worktree / 提交 / 收尾——只给通用纪律,项目专属规则让位给项目自己的 `CLAUDE.md` |
+
+### 2 个 hook(启用 plugin 即生效,无需手改 settings)
+
+- **SessionStart 注入**:每个 session 开场,把一段极短的「技能纪律」总纲注入进来——「哪怕 1% 相关也先调对应 skill」「先流程后实现」「用户指令 / 项目 `CLAUDE.md` 永远压过本纪律」。这是让 skill 被**勤触发**的关键(不靠描述碰运气)。总纲正文在 `hooks/skill-discipline.md`,想改口味直接改它。
+- **用量计数**:每次调 skill 记一行到 `~/.claude/skill-usage.jsonl`(纯本地、不联网)。看统计:`bash hooks/skills-count.sh`。哪条 skill 从没触发过 → 考虑裁掉。
+
+## 依赖
+
+- **`bash`** —— macOS / Linux 自带;Windows 用 [Git for Windows](https://git-scm.com/download/win) 的 git-bash(Claude Code on Windows 本就依赖它)。hook 通过 polyglot 包装器 `hooks/run-hook.cmd` 自动找到正确的 bash,在 Windows 上**故意绕开 WSL 的 `system32\bash.exe`**。
+- **不需要 jq** —— 所有 JSON 转义 / 解析都用纯 bash 完成,零外部依赖,Windows / macOS / Linux 全平台一致。
+
+> 跨平台原理:hook 脚本用**无扩展名**文件名(避开 Claude Code 在 Windows 上对含 `.sh` 命令自动加 `bash` 前缀);由 `run-hook.cmd`(既是合法 batch 又是合法 bash 的 polyglot)分发——cmd.exe 走批处理段找 git-bash,Unix shell 走末尾的 bash 段。此机制照搬官方 superpowers 的经过验证的做法。
+
+## License
+
+MIT — 见 [LICENSE](LICENSE)。

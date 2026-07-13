@@ -1,0 +1,6 @@
+# macOS
+.DS_Store
+
+# 日志 / 临时
+*.log
+*.err
