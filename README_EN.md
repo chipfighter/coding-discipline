@@ -42,6 +42,15 @@ Start a **new session** for it to take effect (see "auto-injection" below). To t
 - **SessionStart injection**: at the start of every session, inject a very short "skill discipline" primer — "even 1% relevant → invoke the matching skill first", "process before implementation", "user instructions / project `CLAUDE.md` always override this primer". This is the key to skills firing **eagerly** (rather than relying on description luck). The primer body lives in `hooks/skill-discipline.md` — edit it to taste.
 - **Usage counting (cross-platform)**: unified log at `~/.coding-discipline/usage.jsonl` (local only, no network). Two tiers of granularity — **session activation** is counted per platform (works on Codex / Cursor / Claude Code via SessionStart), while **per-skill** detail is only precisely recordable on Claude Code. View stats: `bash hooks/skills-count.sh`.
 
+## Companion: a project `CLAUDE.md` template
+
+Want this context discipline in your own project? **Install the plugin first (above), then** copy [templates/CLAUDE.md](templates/CLAUDE.md) into your project root and fill the two ★ sections:
+
+- **"My doc structure"** — tells `context-hygiene` which file is the current source of truth and which are archives (so it knows what to read vs. never read).
+- **"Project-specific"** — what this project is, its hard boundaries, how "done" is judged.
+
+The universal discipline (align-first / TDD / review / git flow / context hygiene) is provided globally by the plugin and is **not repeated** in the template — that's why the template is thin. **Note: the template assumes the plugin is installed**; copying it without the plugin leaves those universal rules empty.
+
 ## Using it on Codex (for friends on Codex)
 
 The same skills work directly — Codex natively supports `SKILL.md` (with `name` / `description` frontmatter), the exact format used here.

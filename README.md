@@ -42,6 +42,15 @@
 - **SessionStart 注入**:每个 session 开场,把一段极短的「技能纪律」总纲注入进来——「哪怕 1% 相关也先调对应 skill」「先流程后实现」「用户指令 / 项目 `CLAUDE.md` 永远压过本纪律」。这是让 skill 被**勤触发**的关键(不靠描述碰运气)。总纲正文在 `hooks/skill-discipline.md`,想改口味直接改它。
 - **用量计数(跨平台)**:统一记到 `~/.coding-discipline/usage.jsonl`(纯本地、不联网)。两档粒度——**会话激活**按平台记(Codex / Cursor / Claude Code 通用,靠 SessionStart),**按 skill** 明细目前只有 Claude Code 能精确记。看统计:`bash hooks/skills-count.sh`。
 
+## 配套:给项目用的 `CLAUDE.md` 模板
+
+想在你自己项目里用上这套上下文纪律?**先装本插件(见上),再**把 [templates/CLAUDE.md](templates/CLAUDE.md) 拷到你项目根,填掉带 ★ 的两段:
+
+- **「我的文档结构」**——告诉 `context-hygiene`:哪份是当下真源、哪些是归档(它据此分辨「该读 / 绝不读」)。
+- **「项目专属」**——这项目是什么、硬边界、怎么算成功。
+
+通用编程纪律(先对齐 / TDD / 评审 / git 流程 / 上下文防毒)由插件全局提供、模板里**不重复**——所以模板很薄,只装你项目独有的东西。**注意:模板假设插件已装**;只拷模板不装插件,那几段通用纪律就是空的。
+
 ## 在 Codex 上用(给用 Codex 的朋友)
 
 同一套 skill 直接能用——Codex 原生支持 `SKILL.md`(`name` / `description` frontmatter),格式和这里一模一样。
