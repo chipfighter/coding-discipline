@@ -42,14 +42,16 @@ Start a **new session** for it to take effect (see "auto-injection" below). To t
 - **SessionStart injection**: at the start of every session, inject a very short "skill discipline" primer — "even 1% relevant → invoke the matching skill first", "process before implementation", "user instructions / project `CLAUDE.md` always override this primer". This is the key to skills firing **eagerly** (rather than relying on description luck). The primer body lives in `hooks/skill-discipline.md` — edit it to taste.
 - **Usage counting (cross-platform)**: unified log at `~/.coding-discipline/usage.jsonl` (local only, no network). Two tiers of granularity — **session activation** is counted per platform (works on Codex / Cursor / Claude Code via SessionStart), while **per-skill** detail is only precisely recordable on Claude Code. View stats: `bash hooks/skills-count.sh`.
 
-## Companion: a project `CLAUDE.md` template
+## Project guide doc: auto-generated, grows with the project
 
-Want this context discipline in your own project? **Install the plugin first (above), then** copy [templates/CLAUDE.md](templates/CLAUDE.md) into your project root and fill the two ★ sections:
+Once the plugin is installed, the **first** time you open a session in a project (at a git repo root), the plugin **drops an empty skeleton** guide doc automatically — no manual copying:
 
-- **"My doc structure"** — tells `context-hygiene` which file is the current source of truth and which are archives (so it knows what to read vs. never read).
-- **"Project-specific"** — what this project is, its hard boundaries, how "done" is judged.
+- **Claude Code** gets `CLAUDE.md`, **Codex** gets `AGENTS.md` — each platform reads its own file; detection is automatic.
+- Created **only when no** guide doc exists — it **never overwrites** yours, and only acts at a git repo root. The file itself is the "already seeded" marker — later sessions cost zero interruption and zero context.
+- The skeleton is **deliberately almost empty**. It is not an upfront spec written before the work starts, but a doc that **grows one line per decision** as the project moves forward: it records only what is "confirmed, and not derivable from reading the code" (tech choices / hard boundaries / definition of done). When something changes, edit the line in place instead of appending (this regime is governed by `context-hygiene`).
 
-The universal discipline (align-first / TDD / review / git flow / context hygiene) is provided globally by the plugin and is **not repeated** in the template — that's why the template is thin. **Note: the template assumes the plugin is installed**; copying it without the plugin leaves those universal rules empty.
+> For a reference of what a filled-in one looks like, see [templates/CLAUDE.md](templates/CLAUDE.md) (the ★ full version, for manual reference — **no need to copy it verbatim**).
+> The universal discipline (align-first / TDD / review / git flow / context-poisoning defense) is provided globally by the plugin and is **not repeated** in the skeleton or the template.
 
 ## Using it on Codex (for friends on Codex)
 
@@ -65,7 +67,7 @@ cat plugins/coding-discipline/hooks/skill-discipline.md >> ~/.codex/AGENTS.md   
 
 Codex then auto-loads the matching skill by description, or you invoke one explicitly with `$skill-name` in the prompt.
 
-**As a Codex plugin (full form):** the repo already ships `.codex-plugin/plugin.json` + `hooks/hooks-codex.json` (SessionStart injection, same mechanism as superpowers); installed as a proper plugin, session-activation counting comes along too.
+**As a Codex plugin (full form):** the repo already ships `.codex-plugin/plugin.json` + `hooks/hooks-codex.json` (SessionStart injection, same mechanism as superpowers); installed as a proper plugin, session-activation counting and the **auto-generated empty `AGENTS.md` skeleton on first entering a project** (same as above, filename per Codex) come along too. The "simplest" skills-only copy above does **not** auto-generate — create your `AGENTS.md` by hand in that case.
 
 > **Counting note:** on Codex only **session activation** can be tracked (and only when installed as a plugin so `hooks-codex.json`'s SessionStart runs); **per-skill** counting is Claude-Code-only — Codex loads skill bodies via internal progressive disclosure, not a tool call, so there is no hookable per-skill event.
 
