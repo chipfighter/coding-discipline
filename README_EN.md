@@ -24,7 +24,7 @@ Start a **new session** for it to take effect (see "auto-injection" below). To t
 
 ## What's inside
 
-### 7 discipline skills (auto-triggered on demand)
+### 8 discipline skills (auto-triggered on demand)
 
 | skill | when it fires |
 |---|---|
@@ -35,6 +35,7 @@ Start a **new session** for it to take effect (see "auto-injection" below). To t
 | `code-review` | finishing a piece / before merge — review by "correctness → meets-requirements → security → simplicity → style" |
 | `verify-before-done` | before claiming "it works" — actually run the verification command and read the output first |
 | `git-flow` | branching / worktrees / commits / wrap-up — general discipline only; project-specific rules defer to the project's own `CLAUDE.md` |
+| `context-hygiene` | loading project docs / context — trust only the current source of truth, never read archives, don't grow a parallel spec library |
 
 ### 2 hooks (active as soon as the plugin is enabled — no manual settings edits)
 
@@ -49,7 +50,7 @@ The same skills work directly — Codex natively supports `SKILL.md` (with `name
 
 ```bash
 mkdir -p ~/.agents/skills
-cp -r plugins/coding-discipline/skills/* ~/.agents/skills/            # 1. install the 7 skills
+cp -r plugins/coding-discipline/skills/* ~/.agents/skills/            # 1. install the 8 skills
 cat plugins/coding-discipline/hooks/skill-discipline.md >> ~/.codex/AGENTS.md   # 2. inject the discipline primer
 ```
 

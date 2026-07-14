@@ -24,7 +24,7 @@
 
 ## 里面有什么
 
-### 7 个纪律 skill(按需自动触发)
+### 8 个纪律 skill(按需自动触发)
 
 | skill | 什么时候用 |
 |---|---|
@@ -35,6 +35,7 @@
 | `code-review` | 完成一块 / 合并前——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看 |
 | `verify-before-done` | 宣称"做好了"之前——先真跑验证命令、看到输出再下结论 |
 | `git-flow` | 开分支 / worktree / 提交 / 收尾——只给通用纪律,项目专属规则让位给项目自己的 `CLAUDE.md` |
+| `context-hygiene` | 载入项目文档 / 上下文时——现状只认当下真源、绝不主动读归档、别养平行 spec 库,防过期文档带偏方向 |
 
 ### 2 个 hook(启用 plugin 即生效,无需手改 settings)
 
@@ -49,7 +50,7 @@
 
 ```bash
 mkdir -p ~/.agents/skills
-cp -r plugins/coding-discipline/skills/* ~/.agents/skills/            # 1. 装 7 条 skill
+cp -r plugins/coding-discipline/skills/* ~/.agents/skills/            # 1. 装 8 条 skill
 cat plugins/coding-discipline/hooks/skill-discipline.md >> ~/.codex/AGENTS.md   # 2. 注入纪律总纲
 ```
 
