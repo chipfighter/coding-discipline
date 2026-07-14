@@ -35,6 +35,21 @@ esc="$(escape_for_json "$wrapped")"
 # Tier 1 计数：写文件（不影响下面 stdout 的注入 JSON）。
 cd_write_record session "" "$PWD"
 
+# 首次进入某个 git 仓库根目录时，放一份空的项目引导骨架（只创建、绝不覆盖、不打断主流程）。
+# 骨架内容故意留空，靠 context-hygiene 的规矩随项目「确认一件、写一行」地长大——这里不写死任何项目内容。
+seed_agent_doc() {
+  [ -d "$PWD/.git" ] || return 0                  # 只在仓库根动手，别在随便哪个目录落文件
+  if [ -f "$PWD/CLAUDE.md" ] || [ -f "$PWD/AGENTS.md" ]; then return 0; fi   # 已有引导文档就不碰
+  local seed="${SCRIPT_DIR}/../templates/CLAUDE.seed.md"
+  [ -f "$seed" ] || return 0
+  if [ "$platform" = codex ]; then
+    cp "$seed" "$PWD/AGENTS.md" 2>/dev/null || true
+  else
+    cp "$seed" "$PWD/CLAUDE.md" 2>/dev/null || true
+  fi
+}
+seed_agent_doc || true
+
 # 注入：Cursor 用 additional_context；Copilot/SDK 用顶层 additionalContext；
 # 其余（Claude Code / Codex 及默认）用 hookSpecificOutput.additionalContext。
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
