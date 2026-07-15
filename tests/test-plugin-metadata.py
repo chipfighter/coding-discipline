@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -23,6 +24,14 @@ assert manifest["name"] == PLUGIN.name
 assert SEMVER.fullmatch(manifest["version"])
 assert (PLUGIN / manifest["skills"]).is_dir()
 assert (PLUGIN / manifest["hooks"]).is_file()
+
+wrapper_path = "plugins/coding-discipline/hooks/run-hook.cmd"
+wrapper_stage = subprocess.check_output(
+    ["git", "ls-files", "--stage", "--", wrapper_path],
+    cwd=ROOT,
+    text=True,
+).split()
+assert wrapper_stage and wrapper_stage[0] == "100755", "run-hook.cmd must be executable on Unix"
 
 interface = manifest["interface"]
 for field in (
