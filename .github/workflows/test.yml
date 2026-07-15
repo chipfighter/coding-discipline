@@ -1,8 +1,14 @@
 name: test
 
+# push 只盯 main 和版本 tag；分支上的验证交给 pull_request，免得同一 commit 双跑。
 on:
   push:
+    branches: [main]
+    tags: ['v*']
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
