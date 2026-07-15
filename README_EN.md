@@ -73,7 +73,8 @@ Routing mistakes (fired when it shouldn't / stayed quiet when it should) go into
 The first time you open a session in a Git repository, the plugin drops an empty guide-doc skeleton at the repo root — `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex:
 
 - Created only when missing, never overwrites an existing file; the repo root is found correctly from subdirectories and worktrees too. Set `CD_SEED_AGENT_DOC=0` to disable.
-- The skeleton is deliberately empty: it grows one line per confirmed decision that can't be read from the code (governed by `context-hygiene`). For a filled-in reference see [templates/CLAUDE.md](templates/CLAUDE.md) — no need to copy it verbatim.
+- The skeleton is deliberately empty: it grows one line per confirmed decision that can't be read from the code (governed by `context-hygiene`).
+- It is not a machine-local cache. Confirmed project rules should normally be committed so the team and future sessions share them; never put secrets, tokens, or personal data in it.
 
 ## Dependencies
 
