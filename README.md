@@ -48,10 +48,10 @@ Windows PowerShell 用 `Copy-Item -Recurse "plugins\coding-discipline\skills\*" 
 | `brainstorming` | 需求多解、方案要取舍、或改错代价高（权限 / 支付 / 迁移 / 对外接口）——先问清需求和设计、拿到批准再实现；明确的单点小改不触发 |
 | `tdd` | 行为能用自动化测试验证——红 → 绿 → 重构，没有失败测试就不写实现；文档 / 配置类改动不触发 |
 | `systematic-debugging` | 根因不明的 bug / 测试失败——先复现、反向追根因、根上修一处、补回归；报错直指原因的直接修 |
-| `code-review` | 跨模块 / 高风险面 / 用户要求——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看；纯文档 / 配置值 / 机械改名不因进 PR 触发 |
-| `verify-before-done` | 宣称"做好了"之前，任何任务不例外——结论只认「最后一次相关变化之后」的最低充分证据 |
+| `code-review` | 多个模块需要配合 / 高风险内容 / 用户要求——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看；纯文档 / 配置值 / 机械改名不因进 PR 触发 |
+| `verify-before-done` | 宣称"做好了"之前，任何任务不例外——只认最后一次相关改动后拿到、且刚好能证明结论的证据 |
 | `git-flow` | 开分支 / worktree / 提交 / 收尾——只给通用纪律，项目专属规则以项目自己的 `AGENTS.md` / `CLAUDE.md` 为准 |
-| `context-hygiene` | 载入项目文档 / 上下文时——现状只认当下真源、绝不主动读归档、别养平行 spec 库 |
+| `context-hygiene` | 读取项目文档 / 历史时——当前状态只看项目指定的最新文档，不主动读归档，也不另抄一套 spec |
 
 ### 2 个 hook（启用即生效，不用手改 settings）
 
@@ -60,11 +60,11 @@ Windows PowerShell 用 `Copy-Item -Recurse "plugins\coding-discipline\skills\*" 
 
 ## 能力边界（诚实声明）
 
-skill 是提示词纪律，不是确定性规则引擎——它降低失败概率，不提供 100% 保证。模型读不懂 description、路由不准时，用三条确定性通道兜底：
+skill 是提示词纪律，不是能保证每次执行的规则引擎——它降低失败概率，不提供 100% 保证。模型读不懂 description、判断不准该用哪个 skill 时，用三种更可靠的办法兜底：
 
 - 显式调用某个 skill（绕过自动路由）；
 - 在项目自己的 `CLAUDE.md` / `AGENTS.md` 里给关键目录 / 行为写硬规则——比如想要「本仓库所有 PR 都过 code-review」，写一行就行；
-- 真正要求 100% 的事，交给 CI、lint、测试、required review 等确定性设施。
+- 真正要求每次都执行的事，交给 CI、lint、测试、required review 等硬性设施。
 
 路由出错（不该触发的触发了 / 该触发的没触发）请用仓库的「路由反馈」issue 模板报告——回归案例只从真实失败里长出来。
 

@@ -48,10 +48,10 @@ This route has no SessionStart injection, no usage counting, and no auto-seeded 
 | `brainstorming` | requirements have multiple readings, designs need a trade-off, or mistakes are costly (auth / payments / migrations / public APIs) — pin down requirements & design, get sign-off first; clear single-point changes don't trigger it |
 | `tdd` | the behavior can be verified by automated tests — red → green → refactor; no implementation without a failing test; docs / config changes don't trigger it |
 | `systematic-debugging` | a bug / test failure with an unclear root cause — reproduce, trace back to root cause, fix once at the root, add a regression test; errors that name their own cause get fixed directly |
-| `code-review` | cross-module changes / high-risk surfaces / on request — review by "correctness → meets-requirements → security → simplicity → style"; docs / config values / mechanical renames don't trigger it just for entering a PR |
-| `verify-before-done` | before claiming "it works", no task exempt — claims accept only the minimal sufficient evidence obtained after the last relevant change |
+| `code-review` | changes that affect how modules work together / high-risk changes / on request — review by "correctness → meets-requirements → security → simplicity → style"; docs / config values / mechanical renames don't trigger it just for entering a PR |
+| `verify-before-done` | before claiming "it works", no task exempt — use evidence gathered after the last relevant change and just strong enough to prove the claim |
 | `git-flow` | branching / worktrees / commits / wrap-up — general discipline only; project-specific rules defer to `AGENTS.md` / `CLAUDE.md` |
-| `context-hygiene` | loading project docs / context — trust the current source of truth, never read archives proactively, don't grow a parallel spec library |
+| `context-hygiene` | reading project docs / history — use the project-designated current document, don't read archives proactively, and don't copy the spec into a second place |
 
 ### 2 hooks (active as soon as the plugin is enabled)
 
@@ -60,11 +60,11 @@ This route has no SessionStart injection, no usage counting, and no auto-seeded 
 
 ## Honest limits
 
-Skills are prompt-level discipline, not a deterministic rule engine — they lower failure probability, they don't guarantee it. When a model can't route reliably from descriptions, fall back to three deterministic channels:
+Skills are prompt-level discipline, not rules that are guaranteed to run every time — they lower failure probability, they don't eliminate it. When a model can't reliably decide which skill to use from its description, fall back to three more reliable options:
 
 - invoke a skill explicitly (bypassing automatic routing);
 - put hard rules for critical paths in your project's own `CLAUDE.md` / `AGENTS.md` — e.g. one line saying "every PR in this repo goes through code-review";
-- anything that truly needs 100% belongs to CI, lint, tests, and required reviews.
+- anything that must happen every time belongs to CI, lint, tests, and required reviews.
 
 Routing mistakes (fired when it shouldn't / stayed quiet when it should) go into the repo's "routing feedback" issue template — regression cases grow from real failures only.
 
