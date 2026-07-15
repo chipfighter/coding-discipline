@@ -48,15 +48,25 @@ This route has no SessionStart injection, no usage counting, and no auto-seeded 
 | `brainstorming` | requirements have multiple readings, designs need a trade-off, or mistakes are costly (auth / payments / migrations / public APIs) — pin down requirements & design, get sign-off first; clear single-point changes don't trigger it |
 | `tdd` | the behavior can be verified by automated tests — red → green → refactor; no implementation without a failing test; docs / config changes don't trigger it |
 | `systematic-debugging` | a bug / test failure with an unclear root cause — reproduce, trace back to root cause, fix once at the root, add a regression test; errors that name their own cause get fixed directly |
-| `code-review` | before merge / cross-module changes / high-risk surfaces / on request — review by "correctness → meets-requirements → security → simplicity → style" |
+| `code-review` | cross-module changes / high-risk surfaces / on request — review by "correctness → meets-requirements → security → simplicity → style"; docs / config values / mechanical renames don't trigger it just for entering a PR |
 | `verify-before-done` | before claiming "it works", no task exempt — actually run the verification command and read the output first |
 | `git-flow` | branching / worktrees / commits / wrap-up — general discipline only; project-specific rules defer to `AGENTS.md` / `CLAUDE.md` |
 | `context-hygiene` | loading project docs / context — trust the current source of truth, never read archives proactively, don't grow a parallel spec library |
 
 ### 2 hooks (active as soon as the plugin is enabled)
 
-- **SessionStart injection**: every session starts with a short discipline primer — trigger conditions live in each skill's own description; when they match you must invoke it, when they don't you don't invoke it for show, and user instructions / the project guide doc always override the primer. The body lives in `hooks/skill-discipline.md`; edit it to taste.
+- **SessionStart injection**: every session starts with a short discipline primer — trigger conditions live in each skill's own description; when they match you must invoke it, when they don't you don't invoke it for show. Precedence: the user's latest explicit instruction > the current project guide doc > this primer. The body lives in `hooks/skill-discipline.md`; edit it to taste.
 - **Usage counting**: local only, no network, appended to `~/.coding-discipline/usage.jsonl` — one record per session activation; on Claude Code also one per skill invocation. View stats with `bash hooks/skills-count.sh`; set `CD_USAGE_ENABLED=0` to disable.
+
+## Honest limits
+
+Skills are prompt-level discipline, not a deterministic rule engine — they lower failure probability, they don't guarantee it. When a model can't route reliably from descriptions, fall back to three deterministic channels:
+
+- invoke a skill explicitly (bypassing automatic routing);
+- put hard rules for critical paths in your project's own `CLAUDE.md` / `AGENTS.md` — e.g. one line saying "every PR in this repo goes through code-review";
+- anything that truly needs 100% belongs to CI, lint, tests, and required reviews.
+
+Routing mistakes (fired when it shouldn't / stayed quiet when it should) go into the repo's "routing feedback" issue template — regression cases grow from real failures only.
 
 ## Project guide doc: an empty skeleton, seeded automatically
 

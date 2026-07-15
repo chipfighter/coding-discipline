@@ -48,15 +48,25 @@ Windows PowerShell 用 `Copy-Item -Recurse "plugins\coding-discipline\skills\*" 
 | `brainstorming` | 需求多解、方案要取舍、或改错代价高（权限 / 支付 / 迁移 / 对外接口）——先问清需求和设计、拿到批准再实现；明确的单点小改不触发 |
 | `tdd` | 行为能用自动化测试验证——红 → 绿 → 重构，没有失败测试就不写实现；文档 / 配置类改动不触发 |
 | `systematic-debugging` | 根因不明的 bug / 测试失败——先复现、反向追根因、根上修一处、补回归；报错直指原因的直接修 |
-| `code-review` | 合并前 / 跨模块 / 高风险面 / 用户要求——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看 |
+| `code-review` | 跨模块 / 高风险面 / 用户要求——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看；纯文档 / 配置值 / 机械改名不因进 PR 触发 |
 | `verify-before-done` | 宣称"做好了"之前，任何任务不例外——先真跑验证命令、看到输出再下结论 |
 | `git-flow` | 开分支 / worktree / 提交 / 收尾——只给通用纪律，项目专属规则以项目自己的 `AGENTS.md` / `CLAUDE.md` 为准 |
 | `context-hygiene` | 载入项目文档 / 上下文时——现状只认当下真源、绝不主动读归档、别养平行 spec 库 |
 
 ### 2 个 hook（启用即生效，不用手改 settings）
 
-- **SessionStart 注入**：每个 session 开场注入一段很短的「技能纪律」总纲——触发条件写在各 skill 的 description 里，命中必须调、未命中不硬调，用户指令和项目引导文档永远压过本纪律。正文在 `hooks/skill-discipline.md`，想改口味直接改它。
+- **SessionStart 注入**：每个 session 开场注入一段很短的「技能纪律」总纲——触发条件写在各 skill 的 description 里，命中必须调、未命中不硬调；优先级：用户最新指令 > 当前项目引导文档 > 本纪律。正文在 `hooks/skill-discipline.md`，想改口味直接改它。
 - **用量计数**：纯本地、不联网，记到 `~/.coding-discipline/usage.jsonl`——每开一个 session 记一次激活；Claude Code 上还能记到每次 skill 触发。看汇总跑 `bash hooks/skills-count.sh`，不想记就在启动前设 `CD_USAGE_ENABLED=0`。
+
+## 能力边界（诚实声明）
+
+skill 是提示词纪律，不是确定性规则引擎——它降低失败概率，不提供 100% 保证。模型读不懂 description、路由不准时，用三条确定性通道兜底：
+
+- 显式调用某个 skill（绕过自动路由）；
+- 在项目自己的 `CLAUDE.md` / `AGENTS.md` 里给关键目录 / 行为写硬规则——比如想要「本仓库所有 PR 都过 code-review」，写一行就行；
+- 真正要求 100% 的事，交给 CI、lint、测试、required review 等确定性设施。
+
+路由出错（不该触发的触发了 / 该触发的没触发）请用仓库的「路由反馈」issue 模板报告——回归案例只从真实失败里长出来。
 
 ## 项目引导文档：自动落一份空骨架
 
