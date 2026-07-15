@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
-  "description": "瘦但有牙的通用编程纪律 skill 集:brainstorming(设计先行)/ tdd(红绿重构)/ development(照方案实现)/ systematic-debugging(先根因)/ code-review(优先级评审)/ verify-before-done(证据先于断言)/ git-flow(分支·worktree·收尾)/ context-hygiene(防过期文档毒化上下文)。附每个 session 自动注入的技能纪律 hook + 被动用量计数。",
-  "version": "0.4.0",
+  "description": "给 AI 编程助手用的通用编程纪律 skill 集:brainstorming(设计先行)/ tdd(红绿重构)/ development(照方案实现)/ systematic-debugging(先根因)/ code-review(优先级评审)/ verify-before-done(证据先于断言)/ git-flow(分支·worktree·收尾)/ context-hygiene(防过期文档毒化上下文)。附每个 session 自动注入的技能纪律 hook + 被动用量计数。",
+  "version": "0.5.0",
   "author": {
     "name": "chipfighter"
   },

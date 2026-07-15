@@ -13,13 +13,13 @@ description: 开新分支、用 worktree 并行、提交、或干完收尾时用
 - **收敛 = 关版本**：范围做完 → 分支合基线、CI 绿 → CHANGELOG 条目从 backlog 挪进新版本段 → 打 tag（谁打 / 怎么打以项目为准）→ backlog 只剩顺延项。
 
 ## 分支与提交
-- 新开发通常开短命分支，不在受保护主分支或别人分支上直接改；用户或当前 harness 已明确提供工作分支时沿用它，不另起无意义的分支。
+- 每次开发新开分支，**绝不**在受保护主分支或别人分支上直接改；用户或 harness 已明确给了工作分支就沿用，不另起无意义的分支。分支短命：尽快整合，别让它漂太久。
 - 分支名带类型 + 简述（如 `feat/搜索分页`、`fix/登录超时`）；项目有命名规范就照项目的。
 - 约定式提交：`type(scope): 说明`（feat/fix/refactor/docs/chore…）。小步提交，每个 commit 可独立回退。
 
 ## worktree 并行（要同时开几条线、或要和当前工作区隔离时）
 - 先查**是不是已经在隔离工作区**了，是就别再套一层。
-- 当前客户端 / harness 已提供 worktree 管理时优先用它，别手敲 `git worktree add` 制造 harness 看不见的幽灵状态；没有集成能力时才用 git 兜底。
+- 当前客户端 / harness 自带 worktree 管理时优先用它，别手敲 `git worktree add` 制造 harness 看不见的幽灵状态；没有集成能力才用 git 兜底。
 - 自己建项目本地 worktree（`.worktrees/`）前，先确认它被 gitignore，否则会把 worktree 内容误提交。
 - 建好先装依赖 + 跑一遍基线测试，红的先报出来再干活。
 

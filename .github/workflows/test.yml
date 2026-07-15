@@ -1,8 +1,15 @@
 name: test
 
+# push 只盯 main 和版本 tag；分支上的验证交给 pull_request，免得「分支 push + PR」双跑。
+# 给 main 上同一 SHA 打 v* tag 会再跑一次——这是有意的发布复验，不算浪费。
 on:
   push:
+    branches: [main]
+    tags: ['v*']
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
