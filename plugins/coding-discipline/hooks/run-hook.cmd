@@ -39,6 +39,9 @@ echo run-hook.cmd: Git Bash was not found. Install Git for Windows or put bash o
 exit /b 127
 
 :bashpath
+REM MSYS2 login shells cd to HOME unless CHERE_INVOKING is set; the hook
+REM scripts depend on the caller's working directory.
+set "CHERE_INVOKING=1"
 bash --login "%HOOK_DIR%%~1" %2 %3 %4 %5 %6 %7 %8 %9
 exit /b %ERRORLEVEL%
 
