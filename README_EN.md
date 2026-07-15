@@ -6,7 +6,27 @@
 
 It governs **how the work gets done well**: design first, test first, root-cause first, priority-ordered review, evidence before "done", disciplined git flow. Each skill keeps only the **hard rules the model doesn't already know** (~30 lines), stripping the explanations and filler — that's why it's "lean but sharp".
 
-## Install (as a Claude Code plugin)
+## Install
+
+### Codex plugin (recommended)
+
+This repository includes a current Codex marketplace file (`.agents/plugins/marketplace.json`), plugin manifest, skills, and a SessionStart hook. Add the repository and install it with the Codex CLI:
+
+```bash
+codex plugin marketplace add chipfighter/coding-discipline
+codex plugin add coding-discipline@coding-discipline
+```
+
+Start a new task after installation. The first time the hook is enabled, and whenever its definition changes, Codex asks you to review it; use `/hooks` to inspect and trust it.
+
+To install from a local checkout:
+
+```bash
+codex plugin marketplace add .
+codex plugin add coding-discipline@coding-discipline
+```
+
+### Claude Code plugin
 
 > ⚠️ coding-discipline is **self-hosted** — it is not in any official plugin store. Instead you add **this repository as your plugin source**. The first line below adds the source; the second installs. This is a normal, fully-working third-party install.
 
@@ -34,49 +54,72 @@ Start a **new session** for it to take effect (see "auto-injection" below). To t
 | `systematic-debugging` | on a bug / test failure — reproduce, trace back to root cause, fix once at the root, add a regression test |
 | `code-review` | finishing a piece / before merge — review by "correctness → meets-requirements → security → simplicity → style" |
 | `verify-before-done` | before claiming "it works" — actually run the verification command and read the output first |
-| `git-flow` | branching / worktrees / commits / wrap-up — general discipline only; project-specific rules defer to the project's own `CLAUDE.md` |
-| `context-hygiene` | loading project docs / context — trust only the current source of truth, never read archives, don't grow a parallel spec library |
+| `git-flow` | branching / worktrees / commits / wrap-up — general discipline only; project-specific rules defer to `AGENTS.md` / `CLAUDE.md` |
+| `context-hygiene` | loading project docs / context — trust the current source of truth, don't read archives by default, don't grow a parallel spec library |
 
 ### 2 hooks (active as soon as the plugin is enabled — no manual settings edits)
 
-- **SessionStart injection**: at the start of every session, inject a very short "skill discipline" primer — "even 1% relevant → invoke the matching skill first", "process before implementation", "user instructions / project `CLAUDE.md` always override this primer". This is the key to skills firing **eagerly** (rather than relying on description luck). The primer body lives in `hooks/skill-discipline.md` — edit it to taste.
+- **SessionStart injection**: at the start of every session, inject a short discipline primer — invoke a skill when its workflow clearly matches, put process before implementation, and always defer to user instructions and the active project guide. The primer body lives in `hooks/skill-discipline.md` — edit it to taste.
 - **Usage counting (cross-platform)**: unified log at `~/.coding-discipline/usage.jsonl` (local only, no network). Two tiers of granularity — **session activation** is counted per platform (works on Codex / Cursor / Claude Code via SessionStart), while **per-skill** detail is only precisely recordable on Claude Code. View stats: `bash hooks/skills-count.sh`.
+  - Set `CD_USAGE_ENABLED=0` before starting Codex or Claude Code to disable logging completely.
 
 ## Project guide doc: auto-generated, grows with the project
 
-Once the plugin is installed, the **first** time you open a session in a project (at a git repo root), the plugin **drops an empty skeleton** guide doc automatically — no manual copying:
+Once the plugin is installed, the **first** time you open a session anywhere in a Git project, the plugin **drops an empty skeleton** guide doc at the repository root:
 
 - **Claude Code** gets `CLAUDE.md`, **Codex** gets `AGENTS.md` — each platform reads its own file; detection is automatic.
-- Created **only when no** guide doc exists — it **never overwrites** yours, and only acts at a git repo root. The file itself is the "already seeded" marker — later sessions cost zero interruption and zero context.
+- Repository discovery uses `git rev-parse`, so nested start directories, Git worktrees, and `.git` pointer files are supported.
+- It creates only the current platform's missing guide and **never overwrites** an existing file. A `CLAUDE.md` does not block Codex from creating `AGENTS.md`, or vice versa.
+- A guide created by SessionStart is picked up from the next task/session onward.
+- Set `CD_SEED_AGENT_DOC=0` before starting the agent to disable automatic guide creation.
 - The skeleton is **deliberately almost empty**. It is not an upfront spec written before the work starts, but a doc that **grows one line per decision** as the project moves forward: it records only what is "confirmed, and not derivable from reading the code" (tech choices / hard boundaries / definition of done). When something changes, edit the line in place instead of appending (this regime is governed by `context-hygiene`).
 
 > For a reference of what a filled-in one looks like, see [templates/CLAUDE.md](templates/CLAUDE.md) (the ★ full version, for manual reference — **no need to copy it verbatim**).
 > The universal discipline (align-first / TDD / review / git flow / context-poisoning defense) is provided globally by the plugin and is **not repeated** in the skeleton or the template.
 
-## Using it on Codex (for friends on Codex)
+## Install only the Codex skills (no hooks)
 
 The same skills work directly — Codex natively supports `SKILL.md` (with `name` / `description` frontmatter), the exact format used here.
 
-**Simplest (to try it):** drop the skills into Codex's skills directory and put the discipline primer into your global `AGENTS.md`:
+To try only the eight skills, copy them into the Codex user skill directory. You do not need to change the global `AGENTS.md`:
 
 ```bash
 mkdir -p ~/.agents/skills
-cp -r plugins/coding-discipline/skills/* ~/.agents/skills/            # 1. install the 8 skills
-cat plugins/coding-discipline/hooks/skill-discipline.md >> ~/.codex/AGENTS.md   # 2. inject the discipline primer
+cp -r plugins/coding-discipline/skills/* ~/.agents/skills/
 ```
 
-Codex then auto-loads the matching skill by description, or you invoke one explicitly with `$skill-name` in the prompt.
+Windows PowerShell:
 
-**As a Codex plugin (full form):** the repo already ships `.codex-plugin/plugin.json` + `hooks/hooks-codex.json` (SessionStart injection, same mechanism as superpowers); installed as a proper plugin, session-activation counting and the **auto-generated empty `AGENTS.md` skeleton on first entering a project** (same as above, filename per Codex) come along too. The "simplest" skills-only copy above does **not** auto-generate — create your `AGENTS.md` by hand in that case.
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+Copy-Item -Recurse -Force "plugins\coding-discipline\skills\*" "$HOME\.agents\skills\"
+```
+
+Codex then auto-loads a matching skill from its description, or you can invoke one explicitly with `$skill-name`. Skills-only installation does not run SessionStart, count usage, or create `AGENTS.md`. If you deliberately want the discipline primer globally, review it and merge `hooks/skill-discipline.md` into `~/.codex/AGENTS.md`; do not append it repeatedly.
 
 > **Counting note:** on Codex only **session activation** can be tracked (and only when installed as a plugin so `hooks-codex.json`'s SessionStart runs); **per-skill** counting is Claude-Code-only — Codex loads skill bodies via internal progressive disclosure, not a tool call, so there is no hookable per-skill event.
 
 ## Dependencies
 
-- **`bash`** — built in on macOS / Linux; on Windows use [Git for Windows](https://git-scm.com/download/win) git-bash (Claude Code on Windows relies on it anyway). Hooks find the right bash via the polyglot wrapper `hooks/run-hook.cmd`, which on Windows **deliberately avoids WSL's `system32\bash.exe`**.
+- **`bash`** — built in on macOS / Linux; on Windows use [Git for Windows](https://git-scm.com/download/win) git-bash. Hooks find the right bash and restore Git Bash's POSIX tool paths through `hooks/run-hook.cmd`, which on Windows **deliberately avoids WSL's `system32\bash.exe`**.
 - **No jq required** — all JSON escaping / parsing is done in pure bash, zero external dependencies, identical across Windows / macOS / Linux.
 
 > Cross-platform mechanism: hook scripts use **extensionless** filenames (to dodge Claude Code's Windows auto-detection that prepends `bash` to any command containing `.sh`); `run-hook.cmd` (a polyglot that is both a valid batch file and a valid bash script) dispatches them — cmd.exe runs the batch branch and finds git-bash, Unix shells run the bash tail. This mechanism follows the proven approach from the official superpowers plugin.
+
+## Development and verification
+
+```bash
+python tests/test-plugin-metadata.py
+bash tests/test-hooks.sh
+```
+
+On Windows, also run the real `commandWindows` / Git Bash wrapper test:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1
+```
+
+GitHub Actions runs these checks on both Ubuntu and Windows.
 
 ## Credits
 

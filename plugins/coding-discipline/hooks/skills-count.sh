@@ -3,6 +3,8 @@
 # 用法：
 #   bash skills-count.sh            # 全部
 #   bash skills-count.sh <关键词>   # 只看整行含关键词的记录（cwd 在其中，如 HuiNeng）
+PATH="/usr/bin:/mingw64/bin:${PATH:-}"
+export PATH
 set -euo pipefail
 
 LOG="${CD_USAGE_LOG:-$HOME/.coding-discipline/usage.jsonl}"

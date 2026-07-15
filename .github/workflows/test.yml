@@ -1,0 +1,24 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate plugin metadata
+        run: python tests/test-plugin-metadata.py
+      - name: Test hooks on Linux
+        if: runner.os == 'Linux'
+        run: bash tests/test-hooks.sh
+      - name: Test hooks on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1

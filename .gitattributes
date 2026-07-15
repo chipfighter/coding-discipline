@@ -1,3 +1,6 @@
+# 本文件自身也固定 LF，避免 Windows checkout 后规则文件反复变化。
+.gitattributes         text eol=lf
+
 # hook 脚本必须 LF 行尾——CRLF 会让 git-bash 报 $'\r' 错、让 polyglot .cmd 失灵。
 # 无扩展名脚本按文件名匹配(不带斜杠 = 全仓库任意目录生效;带斜杠会错误锚定到仓库根)。
 *.sh                  text eol=lf
@@ -10,6 +13,10 @@ log-usage             text eol=lf
 # 其余文本
 *.md   text eol=lf
 *.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.py   text eol=lf
+*.ps1  text eol=lf
 
 # 二进制
 *.png binary
