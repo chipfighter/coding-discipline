@@ -72,7 +72,7 @@ assert entry["policy"] == {
 assert entry["category"]
 
 skills = sorted((PLUGIN / "skills").glob("*/SKILL.md"))
-assert len(skills) == 8
+assert len(skills) == 7
 for path in skills:
     text = path.read_text(encoding="utf-8")
     assert text.startswith("---\n"), f"{path} has no frontmatter"
