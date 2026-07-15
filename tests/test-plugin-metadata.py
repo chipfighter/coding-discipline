@@ -22,6 +22,10 @@ def load_json(path: Path) -> dict:
 manifest = load_json(PLUGIN / ".codex-plugin" / "plugin.json")
 assert manifest["name"] == PLUGIN.name
 assert SEMVER.fullmatch(manifest["version"])
+
+claude_manifest = load_json(PLUGIN / ".claude-plugin" / "plugin.json")
+assert claude_manifest["name"] == manifest["name"], "manifest names diverged"
+assert claude_manifest["version"] == manifest["version"], "manifest versions diverged"
 assert (PLUGIN / manifest["skills"]).is_dir()
 assert (PLUGIN / manifest["hooks"]).is_file()
 

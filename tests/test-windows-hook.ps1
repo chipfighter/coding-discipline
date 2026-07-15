@@ -65,3 +65,6 @@ finally {
         throw "refusing to remove unexpected test path: $ResolvedTemp"
     }
 }
+
+# 别让最后一个原生命令的 $LASTEXITCODE（invalid-platform 用例的 2）泄漏成脚本退出码。
+exit 0

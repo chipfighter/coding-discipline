@@ -6,11 +6,13 @@ PLUGIN_ROOT="${ROOT}/plugins/coding-discipline"
 HOOK="${PLUGIN_ROOT}/hooks/session-start-skills"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/coding-discipline-tests.XXXXXX")"
 
-if command -v python3 >/dev/null 2>&1; then
-  PYTHON=python3
-elif command -v python >/dev/null 2>&1; then
-  PYTHON=python
-else
+# 候选解释器要真跑一下才算数——Windows 上 Microsoft Store 的 python3.exe
+# 假 stub 能通过 command -v，但一执行就退出 49。
+PYTHON=
+for cand in python3 python; do
+  if "$cand" -c '' >/dev/null 2>&1; then PYTHON="$cand"; break; fi
+done
+if [ -z "$PYTHON" ]; then
   printf 'FAIL: Python is required for JSON validation\n' >&2
   exit 1
 fi
