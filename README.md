@@ -2,9 +2,9 @@
 
 **English** → [README_EN.md](README_EN.md)
 
-给 AI 编程助手用的一套通用编程纪律插件：8 个 skill + 2 个 hook，装一次全局生效，Claude Code 和 Codex 都能用。
+给 AI 编程助手用的一套通用编程纪律插件：7 个 skill + 2 个 hook，装一次全局生效，Claude Code 和 Codex 都能用。
 
-它管的事很简单：动手前先对齐方案、先写测试再写实现、修 bug 先找根因、说「做完了」之前先拿运行证据。每条 skill 只有 30 行左右，只写模型自己想不到的硬规矩。
+它管的事很简单：需求没对齐先对齐、可测的行为先写测试、修 bug 先找根因、说「做完了」之前先拿运行证据。每条 skill 只有 30 行左右，条件命中才触发——小改动不打扰，触发了就不讲价。
 
 ## 安装
 
@@ -28,7 +28,7 @@ codex plugin add coding-discipline@coding-discipline
 
 ### 只要 skills、不要 hook（Codex）
 
-Codex 原生支持 `SKILL.md`，直接把 8 个 skill 拷进用户技能目录就能用：
+Codex 原生支持 `SKILL.md`，直接把 7 个 skill 拷进用户技能目录就能用：
 
 ```bash
 mkdir -p ~/.agents/skills
@@ -41,22 +41,21 @@ Windows PowerShell 用 `Copy-Item -Recurse "plugins\coding-discipline\skills\*" 
 
 ## 里面有什么
 
-### 8 个 skill（按需自动触发）
+### 7 个 skill（条件命中才触发）
 
-| skill | 什么时候用 |
+| skill | 什么时候触发 |
 |---|---|
-| `brainstorming` | 做任何创造性的活、动手写代码之前——先问清需求和设计、拿到批准再实现 |
-| `tdd` | 实现功能 / 修 bug 之前——红 → 绿 → 重构，没有失败测试就不写实现 |
-| `development` | 照已定方案实现——拆小块、每块 TDD、省上下文、整合后验证 |
-| `systematic-debugging` | 碰到 bug / 测试失败——先复现、反向追根因、根上修一处、补回归 |
-| `code-review` | 完成一块 / 合并前——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看 |
-| `verify-before-done` | 宣称"做好了"之前——先真跑验证命令、看到输出再下结论 |
+| `brainstorming` | 需求多解、方案要取舍、或改错代价高（权限 / 支付 / 迁移 / 对外接口）——先问清需求和设计、拿到批准再实现；明确的单点小改不触发 |
+| `tdd` | 行为能用自动化测试验证——红 → 绿 → 重构，没有失败测试就不写实现；文档 / 配置类改动不触发 |
+| `systematic-debugging` | 根因不明的 bug / 测试失败——先复现、反向追根因、根上修一处、补回归；报错直指原因的直接修 |
+| `code-review` | 合并前 / 跨模块 / 高风险面 / 用户要求——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看 |
+| `verify-before-done` | 宣称"做好了"之前，任何任务不例外——先真跑验证命令、看到输出再下结论 |
 | `git-flow` | 开分支 / worktree / 提交 / 收尾——只给通用纪律，项目专属规则以项目自己的 `AGENTS.md` / `CLAUDE.md` 为准 |
 | `context-hygiene` | 载入项目文档 / 上下文时——现状只认当下真源、绝不主动读归档、别养平行 spec 库 |
 
 ### 2 个 hook（启用即生效，不用手改 settings）
 
-- **SessionStart 注入**：每个 session 开场注入一段很短的「技能纪律」总纲——哪怕 1% 可能相关也先调对应 skill、先流程后实现、用户指令和项目引导文档永远压过本纪律。正文在 `hooks/skill-discipline.md`，想改口味直接改它。
+- **SessionStart 注入**：每个 session 开场注入一段很短的「技能纪律」总纲——触发条件写在各 skill 的 description 里，命中必须调、未命中不硬调，用户指令和项目引导文档永远压过本纪律。正文在 `hooks/skill-discipline.md`，想改口味直接改它。
 - **用量计数**：纯本地、不联网，记到 `~/.coding-discipline/usage.jsonl`——每开一个 session 记一次激活；Claude Code 上还能记到每次 skill 触发。看汇总跑 `bash hooks/skills-count.sh`，不想记就在启动前设 `CD_USAGE_ENABLED=0`。
 
 ## 项目引导文档：自动落一份空骨架
@@ -77,6 +76,8 @@ Windows PowerShell 用 `Copy-Item -Recurse "plugins\coding-discipline\skills\*" 
 python tests/test-plugin-metadata.py   # manifest / hooks / skills 元数据
 bash tests/test-hooks.sh               # hook 行为（Linux / Git Bash）
 ```
+
+元数据测试同时约束每个 session 的固定注入开销（SessionStart 总纲 + 全部 skill description）不超过 v0.5.0 基线。触发效果以真实使用反馈持续校准，不设人工场景发版门槛。
 
 Windows 上再跑一遍真实的 Windows 入口：
 

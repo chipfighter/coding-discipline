@@ -9,7 +9,7 @@
     {
       "name": "coding-discipline",
       "source": "./plugins/coding-discipline",
-      "description": "8 个「瘦但有牙」编程纪律 skill(含 context-hygiene 上下文防毒)+ 每场自动注入的技能纪律 + 被动用量计数。附首次进项目自动生成的引导文档（CLAUDE.md / AGENTS.md）。"
+      "description": "7 个「瘦但有牙」编程纪律 skill(含 context-hygiene 上下文防毒)——条件命中才触发、触发后不讲价 + 每场自动注入的技能纪律 + 被动用量计数。附首次进项目自动生成的引导文档（CLAUDE.md / AGENTS.md）。"
     }
   ]
 }
