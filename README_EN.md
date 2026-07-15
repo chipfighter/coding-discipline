@@ -4,7 +4,7 @@
 
 A coding-discipline plugin for AI coding agents: 7 skills + 2 hooks. Install once, applies globally, works with both Claude Code and Codex.
 
-What it enforces is simple: align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, and show run output before claiming "done". Each skill is ~30 lines and only fires when its trigger conditions match — small changes stay friction-free, but once triggered there is no bargaining.
+What it enforces is simple: align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, and show evidence before claiming "done". Each skill is ~30 lines and only fires when its trigger conditions match — small changes stay friction-free, but once triggered there is no bargaining.
 
 ## Install
 
@@ -48,15 +48,25 @@ This route has no SessionStart injection, no usage counting, and no auto-seeded 
 | `brainstorming` | requirements have multiple readings, designs need a trade-off, or mistakes are costly (auth / payments / migrations / public APIs) — pin down requirements & design, get sign-off first; clear single-point changes don't trigger it |
 | `tdd` | the behavior can be verified by automated tests — red → green → refactor; no implementation without a failing test; docs / config changes don't trigger it |
 | `systematic-debugging` | a bug / test failure with an unclear root cause — reproduce, trace back to root cause, fix once at the root, add a regression test; errors that name their own cause get fixed directly |
-| `code-review` | before merge / cross-module changes / high-risk surfaces / on request — review by "correctness → meets-requirements → security → simplicity → style" |
-| `verify-before-done` | before claiming "it works", no task exempt — actually run the verification command and read the output first |
+| `code-review` | changes that affect how modules work together / high-risk changes / on request — review by "correctness → meets-requirements → security → simplicity → style"; docs / config values / mechanical renames don't trigger it just for entering a PR |
+| `verify-before-done` | before claiming "it works", no task exempt — use evidence gathered after the last relevant change and just strong enough to prove the claim |
 | `git-flow` | branching / worktrees / commits / wrap-up — general discipline only; project-specific rules defer to `AGENTS.md` / `CLAUDE.md` |
-| `context-hygiene` | loading project docs / context — trust the current source of truth, never read archives proactively, don't grow a parallel spec library |
+| `context-hygiene` | reading project docs / history — use the project-designated current document, don't read archives proactively, and don't copy the spec into a second place |
 
 ### 2 hooks (active as soon as the plugin is enabled)
 
-- **SessionStart injection**: every session starts with a short discipline primer — trigger conditions live in each skill's own description; when they match you must invoke it, when they don't you don't invoke it for show, and user instructions / the project guide doc always override the primer. The body lives in `hooks/skill-discipline.md`; edit it to taste.
+- **SessionStart injection**: every session starts with a short discipline primer — trigger conditions live in each skill's own description; when they match you must invoke it, when they don't you don't invoke it for show. Precedence: the user's latest explicit instruction > the current project guide doc > this primer. The body lives in `hooks/skill-discipline.md`; edit it to taste.
 - **Usage counting**: local only, no network, appended to `~/.coding-discipline/usage.jsonl` — one record per session activation; on Claude Code also one per skill invocation. View stats with `bash hooks/skills-count.sh`; set `CD_USAGE_ENABLED=0` to disable.
+
+## Honest limits
+
+Skills are prompt-level discipline, not rules that are guaranteed to run every time — they lower failure probability, they don't eliminate it. When a model can't reliably decide which skill to use from its description, fall back to three more reliable options:
+
+- invoke a skill explicitly (bypassing automatic routing);
+- put hard rules for critical paths in your project's own `CLAUDE.md` / `AGENTS.md` — e.g. one line saying "every PR in this repo goes through code-review";
+- anything that must happen every time belongs to CI, lint, tests, and required reviews.
+
+Routing mistakes (fired when it shouldn't / stayed quiet when it should) go into the repo's "routing feedback" issue template — regression cases grow from real failures only.
 
 ## Project guide doc: an empty skeleton, seeded automatically
 
