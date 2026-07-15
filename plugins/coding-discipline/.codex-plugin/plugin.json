@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
   "version": "0.5.0",
-  "description": "「瘦但有牙」的通用编程纪律 skill 集：设计先行 / TDD / 系统化调试 / 优先级评审 / 证据式验证 / 规矩的 git 流程 / 上下文防毒。全中文、跨 AI 编程助手通用。",
+  "description": "给 AI 编程助手用的通用编程纪律 skill 集：设计先行 / TDD / 系统化调试 / 优先级评审 / 证据式验证 / 规矩的 git 流程 / 上下文防毒。全中文、跨 AI 编程助手通用。",
   "author": {
     "name": "chipfighter"
   },
@@ -23,7 +23,7 @@
   "hooks": "./hooks/hooks-codex.json",
   "interface": {
     "displayName": "Coding Discipline",
-    "shortDescription": "瘦但有牙的通用编程纪律 skill（中文）",
+    "shortDescription": "给 AI 编程助手的通用编程纪律 skill（中文）",
     "longDescription": "设计先行、TDD、先找根因、按优先级评审、证据式验证、规矩地走 git 流程、不被过期文档带偏——每条 skill 只留模型不知道的硬纪律。",
     "developerName": "chipfighter",
     "category": "Coding",
