@@ -3,6 +3,8 @@
 # 负载 JSON 从 stdin 进来；无 jq，用 grep/sed 抽 skill 名，交给共享 writer。
 # 任何情况都 exit 0，绝不打断主流程。
 # 注：Codex 的 skill 是渐进式内部加载、非工具调用，没有可挂钩的按-skill 事件——故此钩子仅 Claude Code 用。
+PATH="/usr/bin:/mingw64/bin:${PATH:-}"
+export PATH
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "${SCRIPT_DIR}/usage-lib.sh"
 

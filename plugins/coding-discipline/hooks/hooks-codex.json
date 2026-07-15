@@ -2,11 +2,12 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume|clear",
+        "matcher": "startup|resume|clear|compact",
         "hooks": [
           {
             "type": "command",
-            "command": "\"${PLUGIN_ROOT}/hooks/run-hook.cmd\" session-start-skills",
+            "command": "\"${PLUGIN_ROOT}/hooks/run-hook.cmd\" session-start-skills codex",
+            "commandWindows": "cmd.exe /d /s /c \"\"%PLUGIN_ROOT%\\hooks\\run-hook.cmd\" session-start-skills codex\"",
             "async": false
           }
         ]
