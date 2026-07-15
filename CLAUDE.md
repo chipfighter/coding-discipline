@@ -11,7 +11,7 @@
 > - 等这几段都填得差不多了，可以把本段说明删掉。
 
 ## 当前最新状态看哪份文档
-GitHub Releases / tags（当前主推 v0.6.0，2026-07-15 合并）；仓库现状以 main 的 README 为准。
+GitHub Releases / tags（当前主推 v0.6.1，2026-07-15）；仓库现状以 main 的 README 为准。
 
 ## 这项目是什么
 给 AI 编程助手的按需纪律护栏（coding-discipline）+ 规划中的 spec-engineering 协作层。定位：harness 负责把事做快，skill 负责在特定风险下别犯蠢，spec 负责人和 AI 始终做同一件事。产品只押两块不随模型升级贬值的地基：倾向型失败的硬护栏、人机目标合同。

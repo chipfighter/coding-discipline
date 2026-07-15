@@ -4,7 +4,7 @@
 
 A coding-discipline plugin for AI coding agents: 7 skills + 2 hooks. Install once, applies globally, works with both Claude Code and Codex.
 
-What it enforces is simple: align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, and show run output before claiming "done". Each skill is ~30 lines and only fires when its trigger conditions match — small changes stay friction-free, but once triggered there is no bargaining.
+What it enforces is simple: align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, and show evidence before claiming "done". Each skill is ~30 lines and only fires when its trigger conditions match — small changes stay friction-free, but once triggered there is no bargaining.
 
 ## Install
 
@@ -49,7 +49,7 @@ This route has no SessionStart injection, no usage counting, and no auto-seeded 
 | `tdd` | the behavior can be verified by automated tests — red → green → refactor; no implementation without a failing test; docs / config changes don't trigger it |
 | `systematic-debugging` | a bug / test failure with an unclear root cause — reproduce, trace back to root cause, fix once at the root, add a regression test; errors that name their own cause get fixed directly |
 | `code-review` | cross-module changes / high-risk surfaces / on request — review by "correctness → meets-requirements → security → simplicity → style"; docs / config values / mechanical renames don't trigger it just for entering a PR |
-| `verify-before-done` | before claiming "it works", no task exempt — actually run the verification command and read the output first |
+| `verify-before-done` | before claiming "it works", no task exempt — claims accept only the minimal sufficient evidence obtained after the last relevant change |
 | `git-flow` | branching / worktrees / commits / wrap-up — general discipline only; project-specific rules defer to `AGENTS.md` / `CLAUDE.md` |
 | `context-hygiene` | loading project docs / context — trust the current source of truth, never read archives proactively, don't grow a parallel spec library |
 
