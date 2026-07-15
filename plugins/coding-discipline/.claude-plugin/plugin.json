@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
   "description": "给 AI 编程助手用的通用编程纪律 skill 集:brainstorming(需求多解/高风险才进设计)/ tdd(可测行为红绿重构)/ systematic-debugging(先根因)/ code-review(优先级评审)/ verify-before-done(证据先于断言)/ git-flow(分支·worktree·收尾)/ context-hygiene(防过期文档毒化上下文)。触发条件写在各 skill 的 description 里,命中才介入、触发后不讲价。附每个 session 自动注入的技能纪律 hook + 被动用量计数。",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "author": {
     "name": "chipfighter"
   },
