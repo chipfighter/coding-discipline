@@ -77,7 +77,7 @@ python tests/test-plugin-metadata.py   # manifest / hooks / skills metadata
 bash tests/test-hooks.sh               # hook behavior (Linux / Git Bash)
 ```
 
-Trigger-policy acceptance (fires when it should, stays quiet when it shouldn't) uses the manual scenario set in [tests/trigger-scenarios/](tests/trigger-scenarios/).
+The metadata test also keeps per-session fixed context (the SessionStart primer plus all skill descriptions) at or below the v0.5.0 baseline. Trigger quality is calibrated from real-world feedback rather than a manual release gate.
 
 On Windows, also run the real Windows entry point:
 

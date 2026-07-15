@@ -77,7 +77,7 @@ python tests/test-plugin-metadata.py   # manifest / hooks / skills 元数据
 bash tests/test-hooks.sh               # hook 行为（Linux / Git Bash）
 ```
 
-触发策略的验收（该触发的触发、不该触发的不触发）走人工场景集：见 [tests/trigger-scenarios/](tests/trigger-scenarios/)。
+元数据测试同时约束每个 session 的固定注入开销（SessionStart 总纲 + 全部 skill description）不超过 v0.5.0 基线。触发效果以真实使用反馈持续校准，不设人工场景发版门槛。
 
 Windows 上再跑一遍真实的 Windows 入口：
 

@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "coding-discipline"
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
+V0_5_FIXED_CONTEXT_BUDGET = 1346
 
 
 def load_json(path: Path) -> dict:
@@ -73,6 +74,7 @@ assert entry["category"]
 
 skills = sorted((PLUGIN / "skills").glob("*/SKILL.md"))
 assert len(skills) == 7
+description_chars = 0
 for path in skills:
     text = path.read_text(encoding="utf-8")
     assert text.startswith("---\n"), f"{path} has no frontmatter"
@@ -81,5 +83,13 @@ for path in skills:
     description = re.search(r"(?m)^description:\s*(.+)\s*$", frontmatter)
     assert name and name.group(1) == path.parent.name, f"{path} has the wrong name"
     assert description, f"{path} has no description"
+    description_chars += len(description.group(1))
+
+primer_chars = len((PLUGIN / "hooks" / "skill-discipline.md").read_text(encoding="utf-8"))
+fixed_context_chars = description_chars + primer_chars
+assert fixed_context_chars <= V0_5_FIXED_CONTEXT_BUDGET, (
+    f"fixed context grew to {fixed_context_chars} chars "
+    f"(v0.5.0 baseline: {V0_5_FIXED_CONTEXT_BUDGET})"
+)
 
 print("plugin metadata tests passed")
