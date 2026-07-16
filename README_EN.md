@@ -4,7 +4,7 @@
 
 **Guards AI against two things: drifting off-goal, and skipping steps.**
 
-A two-layer guardrail plugin for AI coding agents: **spec sync** reduces cross-session goal drift — the goals, boundaries and acceptance criteria you confirm get written back to the spec (the source of truth), so the next session doesn't start from a stale target; **risk-triggered discipline** reduces skipped engineering steps — align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, show evidence before claiming "done". 8 skills + 2 hooks. Install once, applies globally, works with both Claude Code and Codex.
+A two-layer guardrail plugin for AI coding agents: **spec sync** reduces cross-session goal drift — the goals, boundaries and acceptance criteria you confirm get written back to the spec (the source of truth), reducing the chance that the next session starts from a stale target; **risk-triggered discipline** reduces skipped engineering steps — align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, show evidence before claiming "done". 8 skills + 2 hooks. Install once, applies globally, works with both Claude Code and Codex.
 
 It does not take over Plan, subagents, worktrees, or your development workflow. Each skill is ~30 lines and only fires when its trigger conditions match — ordinary single-session tasks are never forced to create a spec, small changes stay friction-free, but once triggered there is no bargaining.
 
