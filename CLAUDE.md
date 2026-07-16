@@ -14,7 +14,7 @@
 GitHub Releases / tags（当前主推 v0.6.1，2026-07-15）；仓库现状以 main 的 README 为准。
 
 ## 这项目是什么
-给 AI 编程助手的按需纪律护栏（coding-discipline）+ 规划中的 spec-engineering 协作层。定位：harness 负责把事做快，skill 负责在特定风险下别犯蠢，spec 负责人和 AI 始终做同一件事。产品只押两块不随模型升级贬值的地基：倾向型失败的硬护栏、人机目标合同。
+给 AI 编程助手的双层护栏（coding-discipline）：spec 同步 + 风险触发纪律。定位：harness 负责把事做快，skill 负责在特定风险下别犯蠢，spec-sync 负责把拍板的目标写回当前 spec、让人和 AI 做同一件事。产品只押两块不随模型升级贬值的地基：倾向型失败的硬护栏、人机目标同步。
 
 ## 硬边界：绝不做什么
 - 不与 harness 争编排层：子 agent 调度、计划模式、worktree 编排、模型选择一律不做。
@@ -23,7 +23,7 @@ GitHub Releases / tags（当前主推 v0.6.1，2026-07-15）；仓库现状以 m
 - 项目引导文档只索引当前 spec，不承载活跃 spec。
 - skill 只按失败模式设立：说不出「防哪一个失败模式」的 skill 不设。
 - 纪律文案触发后不软化：硬度在 skill 内部，风险校准只做在触发边界。
-- 通用高风险信号准入测试：「换行业、换语言仍普遍高代价」才进 description，其余归项目规则；固定开销预算零和（加一条先删一条）。
+- 通用高风险信号准入测试：「换行业、换语言仍普遍高代价」才进 description，其余归项目规则；固定开销预算零和（加一条先删一条），基线 = 1491 字（v0.5.0 基线 1346 + 经用户批准的 145 字 spec-sync description，一次性调整，此后重新冻结）。
 - 回归案例只从真实误 / 漏触发 issue 生长、绑定对应 description 修改；不建人工场景资产、不设发版门槛。
 
 ## 技术栈 / 目录约定
@@ -32,3 +32,4 @@ GitHub Releases / tags（当前主推 v0.6.1，2026-07-15）；仓库现状以 m
 ## 怎么算「做完」
 - v0.6.0（触发重校准）：跨平台自动化 CI 通过，且固定注入开销（SessionStart 总纲 + 全部 description 之和）不高于 v0.5.0。触发效果由真实用户反馈持续校准，不设人工场景发版门槛。
 - v0.6.1（评审去仪式化 + 验证时序）：CI 通过（含固定开销不超 v0.5.0 基线断言）；code-review 不再因 PR / 合并事件触发，verify 只认最后一次相关改动后拿到、且刚好能证明结论的证据。
+- v0.7.0（spec 同步层）：新增 spec-sync（description 145 字）与 brainstorming / verify-before-done 正文衔接，现有 7 条 description 和 SessionStart 总纲不改；README 双语改为「spec 同步 + 风险护栏」定位；CI 通过（固定注入 1466 ≤ 基线 1491）。
