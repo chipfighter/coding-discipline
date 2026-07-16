@@ -2,9 +2,11 @@
 
 **中文** → [README.md](README.md)
 
-A coding-discipline plugin for AI coding agents: 7 skills + 2 hooks. Install once, applies globally, works with both Claude Code and Codex.
+**Guards AI against two things: drifting off-goal, and skipping steps.**
 
-What it enforces is simple: align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, and show evidence before claiming "done". Each skill is ~30 lines and only fires when its trigger conditions match — small changes stay friction-free, but once triggered there is no bargaining.
+A two-layer guardrail plugin for AI coding agents: **spec sync** reduces cross-session goal drift — the goals, boundaries and acceptance criteria you confirm get written back to the spec (the source of truth), so the next session doesn't start from a stale target; **risk-triggered discipline** reduces skipped engineering steps — align first when requirements are ambiguous, test-first for testable behavior, root-cause before fixing, show evidence before claiming "done". 8 skills + 2 hooks. Install once, applies globally, works with both Claude Code and Codex.
+
+It does not take over Plan, subagents, worktrees, or your development workflow. Each skill is ~30 lines and only fires when its trigger conditions match — ordinary single-session tasks are never forced to create a spec, small changes stay friction-free, but once triggered there is no bargaining.
 
 ## Install
 
@@ -28,7 +30,7 @@ The first line adds this repository as a plugin source (self-hosted, not the off
 
 ### Skills only, no hooks (Codex)
 
-Codex supports `SKILL.md` natively — just copy the 7 skills into your user skill directory:
+Codex supports `SKILL.md` natively — just copy the 8 skills into your user skill directory:
 
 ```bash
 mkdir -p ~/.agents/skills
@@ -41,10 +43,11 @@ This route has no SessionStart injection, no usage counting, and no auto-seeded 
 
 ## What's inside
 
-### 7 skills (triggered only when conditions match)
+### 8 skills (triggered only when conditions match)
 
 | skill | when it fires |
 |---|---|
+| `spec-sync` | in cross-session work, confirmed goals / non-goals / constraints / acceptance criteria haven't been written back to the current spec (the source of truth), or reality conflicts with it hard enough that following it would go wrong — edit only the affected lines after user confirmation; designate an existing Issue / PRD / ADR as the spec instead of copying it; single-session tasks and implementation details don't trigger it |
 | `brainstorming` | requirements have multiple readings, designs need a trade-off, or mistakes are costly (auth / payments / migrations / public APIs) — pin down requirements & design, get sign-off first; clear single-point changes don't trigger it |
 | `tdd` | the behavior can be verified by automated tests — red → green → refactor; no implementation without a failing test; docs / config changes don't trigger it |
 | `systematic-debugging` | a bug / test failure with an unclear root cause — reproduce, trace back to root cause, fix once at the root, add a regression test; errors that name their own cause get fixed directly |
@@ -88,7 +91,7 @@ python tests/test-plugin-metadata.py   # manifest / hooks / skills metadata
 bash tests/test-hooks.sh               # hook behavior (Linux / Git Bash)
 ```
 
-The metadata test also keeps per-session fixed context (the SessionStart primer plus all skill descriptions) at or below the v0.5.0 baseline. Trigger quality is calibrated from real-world feedback rather than a manual release gate.
+The metadata test also keeps per-session fixed context (the SessionStart primer plus all skill descriptions) at or below the approved budget of 1491 chars (the 1346 v0.5.0 baseline plus the user-approved 145-char spec-sync description; zero-sum again afterwards). Trigger quality is calibrated from real-world feedback rather than a manual release gate.
 
 On Windows, also run the real Windows entry point:
 
