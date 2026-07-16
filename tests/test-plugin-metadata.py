@@ -10,7 +10,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "coding-discipline"
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
-V0_5_FIXED_CONTEXT_BUDGET = 1346
+# 1491 = v0.5.0 baseline (1346) + the user-approved 145-char spec-sync
+# description (v0.7.0 one-time adjustment). Frozen again afterwards: any new
+# description text must fit inside this budget (zero-sum).
+FIXED_CONTEXT_BUDGET = 1491
 
 
 def load_json(path: Path) -> dict:
@@ -73,7 +76,7 @@ assert entry["policy"] == {
 assert entry["category"]
 
 skills = sorted((PLUGIN / "skills").glob("*/SKILL.md"))
-assert len(skills) == 7
+assert len(skills) == 8
 description_chars = 0
 for path in skills:
     text = path.read_text(encoding="utf-8")
@@ -87,9 +90,10 @@ for path in skills:
 
 primer_chars = len((PLUGIN / "hooks" / "skill-discipline.md").read_text(encoding="utf-8"))
 fixed_context_chars = description_chars + primer_chars
-assert fixed_context_chars <= V0_5_FIXED_CONTEXT_BUDGET, (
+assert fixed_context_chars <= FIXED_CONTEXT_BUDGET, (
     f"fixed context grew to {fixed_context_chars} chars "
-    f"(v0.5.0 baseline: {V0_5_FIXED_CONTEXT_BUDGET})"
+    f"(budget {FIXED_CONTEXT_BUDGET} = 1346 v0.5.0 baseline "
+    f"+ 145 approved spec-sync description)"
 )
 
 print("plugin metadata tests passed")
