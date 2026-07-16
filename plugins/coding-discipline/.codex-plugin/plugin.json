@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
-  "version": "0.6.1",
-  "description": "给 AI 编程助手用的通用编程纪律 skill 集：需求多解先对齐 / 可测行为 TDD / 系统化调试 / 优先级评审 / 证据式验证 / 规矩的 git 流程 / 上下文防毒。条件命中才触发、触发后不讲价。全中文、跨 AI 编程助手通用。",
+  "version": "0.7.0",
+  "description": "给 AI 编程助手的双层护栏：spec 同步（spec-sync 防跨 session 目标漂移）+ 编程纪律 skill——需求多解先对齐 / 可测行为 TDD / 系统化调试 / 优先级评审 / 证据式验证 / 规矩的 git 流程 / 上下文防毒。条件命中才触发、触发后不讲价。全中文、跨 AI 编程助手通用。",
   "author": {
     "name": "chipfighter"
   },
@@ -11,6 +11,7 @@
   "keywords": [
     "skills",
     "discipline",
+    "spec",
     "tdd",
     "debugging",
     "code-review",
@@ -23,8 +24,8 @@
   "hooks": "./hooks/hooks-codex.json",
   "interface": {
     "displayName": "Coding Discipline",
-    "shortDescription": "给 AI 编程助手的通用编程纪律 skill（中文）",
-    "longDescription": "需求多解先对齐、可测行为先写测试、先找根因、按优先级评审、证据式验证、规矩地走 git 流程、不被过期文档带偏——触发条件写在每条 skill 的 description 里，命中才介入，skill 内只留模型不知道的硬纪律。",
+    "shortDescription": "给 AI 编程助手的双层护栏：spec 同步 + 编程纪律 skill（中文）",
+    "longDescription": "拍板的目标、边界、验收同步回当前 spec（防跨 session 漂移），加上：需求多解先对齐、可测行为先写测试、先找根因、按优先级评审、证据式验证、规矩地走 git 流程、不被过期文档带偏——触发条件写在每条 skill 的 description 里，命中才介入，skill 内只留模型不知道的硬纪律。",
     "developerName": "chipfighter",
     "category": "Coding",
     "capabilities": [

@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "coding-discipline",
-  "description": "瘦但有牙的通用编程纪律 skill 集 —— 设计先行 / TDD / 系统化调试 / 优先级评审 / 证据式验证 / git 流程 / 上下文防毒。",
+  "description": "瘦但有牙的双层护栏 —— spec 同步（防跨 session 目标漂移）+ 设计先行 / TDD / 系统化调试 / 优先级评审 / 证据式验证 / git 流程 / 上下文防毒。",
   "owner": {
     "name": "chipfighter"
   },
@@ -9,7 +9,7 @@
     {
       "name": "coding-discipline",
       "source": "./plugins/coding-discipline",
-      "description": "7 个「瘦但有牙」编程纪律 skill(含 context-hygiene 上下文防毒)——条件命中才触发、触发后不讲价 + 每场自动注入的技能纪律 + 被动用量计数。附首次进项目自动生成的引导文档（CLAUDE.md / AGENTS.md）。"
+      "description": "8 个「瘦但有牙」skill(含 spec-sync 目标同步、context-hygiene 上下文防毒)——条件命中才触发、触发后不讲价 + 每场自动注入的技能纪律 + 被动用量计数。附首次进项目自动生成的引导文档（CLAUDE.md / AGENTS.md）。"
     }
   ]
 }

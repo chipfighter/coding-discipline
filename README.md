@@ -2,9 +2,11 @@
 
 **English** → [README_EN.md](README_EN.md)
 
-给 AI 编程助手用的一套通用编程纪律插件：7 个 skill + 2 个 hook，装一次全局生效，Claude Code 和 Codex 都能用。
+**防 AI 两件事：做偏，和跳步。**
 
-它管的事很简单：需求没对齐先对齐、可测的行为先写测试、修 bug 先找根因、说「做完了」之前先拿证据。每条 skill 只有 30 行左右，条件命中才触发——小改动不打扰，触发了就不讲价。
+给 AI 编程助手的双层护栏插件：**spec 同步**减少跨 session 的目标漂移——你拍板的目标、边界、验收写回 spec（真源），降低下一轮按旧目标开工的概率；**风险触发纪律**减少关键工程步骤被跳过——需求没对齐先对齐、可测的行为先写测试、修 bug 先找根因、说「做完了」先拿证据。8 个 skill + 2 个 hook，装一次全局生效，Claude Code 和 Codex 都能用。
+
+它不接管 Plan、子 agent、worktree 或开发工作流。每条 skill 只有 30 行左右，条件命中才触发——单 session 普通任务不强制建 spec，小改动不打扰，触发了就不讲价。
 
 ## 安装
 
@@ -28,7 +30,7 @@ codex plugin add coding-discipline@coding-discipline
 
 ### 只要 skills、不要 hook（Codex）
 
-Codex 原生支持 `SKILL.md`，直接把 7 个 skill 拷进用户技能目录就能用：
+Codex 原生支持 `SKILL.md`，直接把 8 个 skill 拷进用户技能目录就能用：
 
 ```bash
 mkdir -p ~/.agents/skills
@@ -41,10 +43,11 @@ Windows PowerShell 用 `Copy-Item -Recurse "plugins\coding-discipline\skills\*" 
 
 ## 里面有什么
 
-### 7 个 skill（条件命中才触发）
+### 8 个 skill（条件命中才触发）
 
 | skill | 什么时候触发 |
 |---|---|
+| `spec-sync` | 跨 session 工作里，拍板的结果 / 非目标 / 约束 / 验收没写回当前真源（spec），或现实与 spec 冲突到照做会错——经用户确认后只改受影响原句；已有 Issue / PRD / ADR 直接指定为 spec、不复制第二份；单 session 任务、实现细节不触发 |
 | `brainstorming` | 需求多解、方案要取舍、或改错代价高（权限 / 支付 / 迁移 / 对外接口）——先问清需求和设计、拿到批准再实现；明确的单点小改不触发 |
 | `tdd` | 行为能用自动化测试验证——红 → 绿 → 重构，没有失败测试就不写实现；文档 / 配置类改动不触发 |
 | `systematic-debugging` | 根因不明的 bug / 测试失败——先复现、反向追根因、根上修一处、补回归；报错直指原因的直接修 |
@@ -88,7 +91,7 @@ python tests/test-plugin-metadata.py   # manifest / hooks / skills 元数据
 bash tests/test-hooks.sh               # hook 行为（Linux / Git Bash）
 ```
 
-元数据测试同时约束每个 session 的固定注入开销（SessionStart 总纲 + 全部 skill description）不超过 v0.5.0 基线。触发效果以真实使用反馈持续校准，不设人工场景发版门槛。
+元数据测试同时约束每个 session 的固定注入开销（SessionStart 总纲 + 全部 skill description）不超过批准基线 1491 字（= v0.5.0 基线 1346 + 用户批准的 spec-sync description 145 字，一次性调整后继续零和）。触发效果以真实使用反馈持续校准，不设人工场景发版门槛。
 
 Windows 上再跑一遍真实的 Windows 入口：
 
