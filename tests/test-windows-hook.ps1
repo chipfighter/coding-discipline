@@ -36,6 +36,9 @@ try {
     }
     if (-not (Test-Path (Join-Path $Repo 'AGENTS.md'))) { throw 'Windows hook did not create AGENTS.md' }
     if (Test-Path (Join-Path $Repo 'CLAUDE.md')) { throw 'Windows hook created CLAUDE.md' }
+    if ((Get-Content (Join-Path $Repo 'AGENTS.md') -TotalCount 1) -ne '# Project guide') {
+        throw 'Windows hook did not seed the English project guide'
+    }
     if ((Get-Content -Raw $env:CD_USAGE_LOG) -notmatch '"platform":"codex"') {
         throw 'Windows hook logged the wrong platform'
     }
@@ -66,5 +69,6 @@ finally {
     }
 }
 
-# 别让最后一个原生命令的 $LASTEXITCODE（invalid-platform 用例的 2）泄漏成脚本退出码。
+# Do not let the final native command's $LASTEXITCODE (2 from the
+# invalid-platform case) leak into the script exit code.
 exit 0

@@ -1,38 +1,38 @@
 ---
 name: tdd
-description: 要实现的行为能用自动化测试验证、且回归测试有明确价值时，动手写实现代码之前用（修 bug 若根因不明，先用 systematic-debugging 定位，再回来走红绿）。红-绿-重构：先写会失败的测试，再写最少代码让它过，最后重构。不触发于：文档 / 配置 / 纯文案样式等没有可测行为的改动。
+description: Use before implementation when behavior can be verified by automated tests and regression coverage has clear value. For bugs with an unknown root cause, use systematic-debugging first, then return for red-green. Follow red-green-refactor—write a failing test first, add only enough code to pass it, then refactor. Do not trigger for documentation, configuration, copy-only, or styling changes with no testable behavior.
 ---
 
-铁律：**没有一个先失败的测试，就不写实现代码。**
-自己本轮刚写、还没交付的实现？撤掉，从测试重来——别留作"参考"、别一边补测试一边瞄着它改。
-**但绝不删用户已有代码、别人的工作区改动**：面对既有实现，先补测试记录并保护现有行为，再做最小修改。
+Iron law: **write no implementation code without a test that failed first.**
+Did you just write the implementation in this turn without delivering it? Remove it and restart from the test—do not keep it as a "reference" or look at it while adding tests.
+**But never delete the user's existing code or someone else's workspace changes**: when working with an existing implementation, add tests that record and protect its current behavior before making the smallest change.
 
-## 一冒出来就打住的借口
-| 你会对自己说 | 现实 |
+## Excuses to stop as soon as they appear
+| What you tell yourself | Reality |
 |---|---|
-| 「先写实现，测试回头补」 | 回头照着实现补的测试，只证明「代码做了它做的事」，证不了「它做对了」。 |
-| 「这段先留着当参考，别真删」 | 时间已经花了，是沉没成本。留着它，你就会照它改测试。撤（仅限自己本轮写的；用户已有代码不准删）。 |
-| 「太简单了，不值当写测试」 | 「简单」是你嘴上没说的假设，恰恰最容易翻车。 |
+| "Write the implementation first and add tests later." | Tests written afterward to match the implementation only prove that "the code does what it does," not that it is correct. |
+| "Keep this as a reference; do not really remove it." | The time is already spent; it is a sunk cost. If you keep it, you will shape the tests around it. Remove it (only if you wrote it this turn; never delete the user's existing code). |
+| "It is too simple to be worth testing." | "Simple" means an assumption you have not stated, which is exactly where failures happen. |
 
-## 红 → 绿 → 重构
-1. **红**：写一个最小的失败测试，只测一个行为，名字说清在测啥，测真实代码别测 mock（mock 只在躲不开时用）。
-2. **验红（必须真跑）**：亲眼看它**失败**，而且是**因为功能还没实现**才失败——不是因为打错字 / import 错 / 语法错。
-   - 一上来就过 = 你在测已经存在的行为，测试没意义，重写。
-   - 是程序报错，不是断言失败 = 先把错修掉，跑到它"正确地挂"为止。
-3. **绿**：写**刚好让它过**的最少代码，别顺手加暂时用不上的功能、别改别的。
-4. **验绿（必须真跑）**：它过 + 其它测试还全过 + 输出干净（无报错/警告）。挂了改代码，不改测试。
-5. **重构**：只在全绿之后做——去重复、改名字、抽函数；全程保持绿，不加新行为。
-6. 下一个行为，回到红。
+## Red → Green → Refactor
+1. **Red**: write the smallest failing test for one behavior. Give it a name that says what it tests, and test real code rather than mocks (use mocks only when unavoidable).
+2. **Verify red (you must run it)**: watch it **fail**, specifically **because the behavior is not implemented yet**—not because of a typo, bad import, or syntax error.
+   - It passes immediately = you are testing behavior that already exists. The test has no value; rewrite it.
+   - The program errors instead of failing an assertion = fix the error and rerun until it "fails correctly."
+3. **Green**: write the **minimum code needed to make it pass**. Do not slip in features that are not needed yet or change anything else.
+4. **Verify green (you must run it)**: the test passes, every other test still passes, and the output is clean (no errors or warnings). If it fails, change the code, not the test.
+5. **Refactor**: only after everything is green—remove duplication, improve names, extract functions. Keep the suite green throughout and add no new behavior.
+6. For the next behavior, return to red.
 
-## 修 bug 也走红绿
-先写一个能**复现这个 bug** 的失败测试，再动手修。这条测试同时证明"修好了"和"以后不再犯"。（根因怎么定位见 systematic-debugging。）
+## Bugs also follow red-green
+Write a failing test that **reproduces the bug** before fixing it. This test proves the fix and guards against recurrence. (See systematic-debugging for finding the root cause.)
 
-## 一个小例子（加「邮箱格式校验」）
-1. **红**：先写 `assert is_valid_email("a@b.com")` 为真、`assert is_valid_email("nope")` 为假——此时函数还不存在，跑，看它因「函数没定义」而挂（不是因为打错字）。
-2. **绿**：写最小实现（一个正则）让这俩过，别顺手支持一堆边角情况。
-3. **重构**：全绿之后再抽常量、改名；绿灯全程不断。
+## A small example (adding email format validation)
+1. **Red**: first assert that `is_valid_email("a@b.com")` is true and `is_valid_email("nope")` is false. The function does not exist yet; run the test and see it fail because the function is undefined, not because of a typo.
+2. **Green**: write the smallest implementation (one regular expression) that makes both assertions pass. Do not add support for a pile of edge cases.
+3. **Refactor**: extract constants or rename things only after everything is green; keep it green throughout.
 
-## 这些是设计在报警，不是测试难写
-- 测试很难写 = 接口难用，简化接口。
-- 什么都得 mock = 耦合太重，解耦（依赖注入）。
-- setup 巨大 = 抽 helper；还复杂就是设计该简化。
+## These are design warnings, not testing difficulties
+- A test is hard to write = the interface is hard to use. Simplify the interface.
+- Everything requires a mock = coupling is too tight. Decouple it (dependency injection).
+- Setup is huge = extract helpers; if it remains complex, simplify the design.

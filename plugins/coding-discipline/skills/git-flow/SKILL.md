@@ -1,30 +1,30 @@
 ---
 name: git-flow
-description: 开新分支、用 worktree 并行、提交、或干完收尾时用。讲分支命名、约定式提交、短命分支、worktree 隔离、收尾合并/清理——具体保护分支/CI/合并方式以项目 AGENTS.md / CLAUDE.md 为准。
+description: Use when creating a branch, using worktrees for parallel work, committing, or wrapping up. Covers branch naming, conventional commits, short-lived branches, worktree isolation, and final merge/cleanup; specific protected branches, CI, and merge methods defer to the project's AGENTS.md / CLAUDE.md.
 ---
 
-> 分支命名规则、哪条分支受保护、合并走直接 merge / PR / MR、合并触不触发 CI、**版本号怎么定 / 谁打 tag**——这些项目专属规则以本仓库的 `AGENTS.md` / `CLAUDE.md` 为准，本 skill 只给通用纪律。
+> Branch naming rules, protected branches, whether to merge directly or through a PR / MR, whether merging triggers CI, and **how to choose versions / who creates tags** are project-specific rules governed by this repository's `AGENTS.md` / `CLAUDE.md`. This skill provides only general discipline.
 
-## 版本 / tag 收口（仅当项目用 tag + CHANGELOG 管版本才适用；**tag 是版本书签，是否等于发布 / 部署以项目引导文档为准**）
-- **开分支前先定版本**：先和负责人确认这次要打哪个 tag——说明上一个 tag、待办还剩什么、这次是新功能还是修复，再给出建议版本号。**等负责人确认再开分支**，别做完才发现没处收口。
-- **版本号遵守 SemVer**：major=破坏性改动、minor=向后兼容的新功能、patch=向后兼容的修复；0.x 更宽松（minor=能力、patch=修复），拿不准时宁可升大一级。「什么算 minor」以项目引导文档为准。
-- **定了就冻结**：目标版本确认后就冻结范围。中途新需求**默认进待办 / 下一版**；要塞进当前版必须让负责人明确拍板，并说清要挤掉或顺延什么。
-- **提交范围（scope）用组件名，不用版本号**（`feat(auth):` 不是 `feat(v1.2):`）：分支会删、commit 历史不会；版本改名时，提交历史仍然准确。
-- **版本收口步骤**：范围做完 → 分支合入基线 → CI 绿 → CHANGELOG 条目从待办移进新版本 → 打 tag（谁打 / 怎么打以项目为准）。
+## Version / tag closeout (only for projects that manage versions with tags + CHANGELOG; **a tag is a version bookmark—whether it also means release / deployment is defined by the project guide document**)
+- **Choose the version before creating the branch:** first confirm the intended tag with the owner—state the previous tag, what remains in the backlog, and whether this work is a feature or a fix, then recommend a version. **Wait for the owner's confirmation before creating the branch**; do not finish the work only to discover there is no agreed release target.
+- **Follow SemVer:** major = breaking change, minor = backward-compatible feature, patch = backward-compatible fix. For 0.x, use the looser convention (minor = capability, patch = fix), and when uncertain prefer the larger bump. The project guide document defines what counts as a minor change.
+- **Freeze once decided:** after the target version is confirmed, freeze its scope. New requirements arising midway **go to the backlog / next version by default**. Including one in the current version requires explicit owner approval and a clear statement of what it displaces or defers.
+- **Use a component, not a version number, as the commit scope** (`feat(auth):`, not `feat(v1.2):`). Branches are deleted; commit history is not. The history remains accurate if the version changes.
+- **Version closeout sequence:** complete the scope → merge the branch into the baseline → get CI green → move the CHANGELOG entry from pending into the new version → create the tag (who creates it and how are project-specific).
 
-## 分支与提交
-- 每次开发新开分支，**绝不**在受保护主分支或别人分支上直接改；用户或客户端已明确给了工作分支就沿用，不另起无意义的分支。分支短命：尽快整合，别让它漂太久。
-- 分支名带类型 + 简述（如 `feat/搜索分页`、`fix/登录超时`）；项目有命名规范就照项目的。
-- 约定式提交：`type(scope): 说明`（feat/fix/refactor/docs/chore…）。小步提交，每个 commit 可独立回退。
+## Branches and commits
+- Create a new branch for each development effort. **Never** edit directly on a protected main branch or someone else's branch. If the user or client has explicitly provided a working branch, keep using it instead of creating a pointless one. Keep branches short-lived: integrate them quickly rather than letting them drift.
+- Use a type + short description in branch names (for example, `feat/search-pagination` or `fix/login-timeout`); follow the project's naming convention when it has one.
+- Use conventional commits: `type(scope): description` (feat/fix/refactor/docs/chore…). Commit in small steps, each independently reversible.
 
-## worktree 并行（要同时开几条线、或要和当前工作区隔离时）
-- 先查**是不是已经在隔离工作区**了，是就别再套一层。
-- Claude Code / Codex 等客户端自带 worktree 管理时优先用它，别手敲 `git worktree add` 制造客户端看不见的工作区；客户端没有这个能力时才用 git 兜底。
-- 自己建项目本地 worktree（`.worktrees/`）前，先确认它被 gitignore，否则会把 worktree 内容误提交。
-- 建好先装依赖 + 跑一遍基线测试，红的先报出来再干活。
+## Parallel worktrees (when running several workstreams at once or isolating work from the current workspace)
+- First check **whether you are already in an isolated workspace**. If so, do not nest another one.
+- Prefer built-in worktree management in clients such as Claude Code / Codex. Do not manually run `git worktree add` and create a workspace the client cannot see; fall back to Git only when the client lacks this capability.
+- Before creating a project-local worktree under `.worktrees/`, confirm that the directory is gitignored; otherwise its contents may be committed accidentally.
+- After creating it, install dependencies and run the baseline tests. Report existing failures before starting work.
 
-## 收尾
-- 收尾**前先验证测试全过**（见 verify-before-done），红的不许进入合并/PR。
-- 给**明确选项**让人选，别问开放式"接下来干啥"：① 合并回基线分支 ② 推送开 PR/MR ③ 原样保留 ④ 丢弃。
-- 顺序铁律：**先合并并验证成功 → 再移除 worktree → 再删分支**（分支还被 worktree 引用时删不掉；`git worktree remove` 要先 cd 回主仓再跑）。
-- 只清理**自己建**的 worktree，客户端建的别碰。丢弃要打字确认。不 force-push，除非明确要求。
+## Wrap-up
+- **Verify that all tests pass before wrapping up** (see verify-before-done). A failing branch must not proceed to merge / PR.
+- Offer **explicit choices** instead of asking an open-ended “What next?”: ① merge into the baseline branch ② push and open a PR/MR ③ keep as-is ④ discard.
+- Iron sequence: **merge and verify success → remove the worktree → delete the branch**. A branch still referenced by a worktree cannot be deleted; before running `git worktree remove`, `cd` back to the main repository.
+- Clean up only worktrees **you created**; do not touch client-created ones. Discarding requires typed confirmation. Do not force-push unless explicitly asked.

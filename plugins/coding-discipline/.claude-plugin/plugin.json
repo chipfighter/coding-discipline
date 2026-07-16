@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
-  "description": "给 AI 编程助手的双层护栏 skill 集:spec-sync(拍板的目标/边界/验收写回当前 spec,防跨 session 漂移)/ brainstorming(需求多解/高风险才进设计)/ tdd(可测行为红绿重构)/ systematic-debugging(先根因)/ code-review(优先级评审)/ verify-before-done(证据先于断言)/ git-flow(分支·worktree·收尾)/ context-hygiene(防过期文档毒化上下文)。触发条件写在各 skill 的 description 里,命中才介入、触发后不讲价。附每个 session 自动注入的技能纪律 hook + 被动用量计数。",
-  "version": "0.7.0",
+  "description": "Workflow-agnostic guardrails for AI coding agents: spec-sync preserves confirmed intent across sessions; brainstorming, TDD, root-cause debugging, prioritized review, evidence-before-done, disciplined git, and context hygiene trigger only when their risk conditions match. Includes a SessionStart discipline primer, optional guide-doc seeding, and passive local usage counting.",
+  "version": "0.8.0",
   "author": {
     "name": "chipfighter"
   },
@@ -18,6 +18,10 @@
     "git",
     "workflow",
     "brainstorming",
-    "chinese"
+    "guardrails",
+    "spec-sync",
+    "spec-driven-development",
+    "context-engineering",
+    "agent-skills"
   ]
 }

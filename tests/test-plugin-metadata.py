@@ -10,10 +10,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "coding-discipline"
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
-# 1491 = v0.5.0 baseline (1346) + the user-approved 145-char spec-sync
-# description (v0.7.0 one-time adjustment). Frozen again afterwards: any new
-# description text must fit inside this budget (zero-sum).
-FIXED_CONTEXT_BUDGET = 1491
+HAN = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]")
+# v0.8.0 resets the fixed-context baseline once for the English migration.
+# Freeze it again afterwards: any new primer or description text must be offset
+# elsewhere (zero-sum).
+FIXED_CONTEXT_BUDGET = 4944
 
 
 def load_json(path: Path) -> dict:
@@ -88,12 +89,39 @@ for path in skills:
     assert description, f"{path} has no description"
     description_chars += len(description.group(1))
 
-primer_chars = len((PLUGIN / "hooks" / "skill-discipline.md").read_text(encoding="utf-8"))
+primer_text = (PLUGIN / "hooks" / "skill-discipline.md").read_text(encoding="utf-8")
+assert "Respond in the user's language unless they request otherwise." in primer_text
+primer_chars = len(primer_text)
 fixed_context_chars = description_chars + primer_chars
 assert fixed_context_chars <= FIXED_CONTEXT_BUDGET, (
     f"fixed context grew to {fixed_context_chars} chars "
-    f"(budget {FIXED_CONTEXT_BUDGET} = 1346 v0.5.0 baseline "
-    f"+ 145 approved spec-sync description)"
+    f"(budget {FIXED_CONTEXT_BUDGET} = frozen v0.8.0 English baseline)"
 )
+
+# v0.8.0 makes the active product surface English-only. The one maintained
+# Chinese translation is explicitly excluded.
+text_extensions = {".cmd", ".json", ".md", ".ps1", ".py", ".sh", ".yml", ".yaml"}
+extensionless_text = {
+    ".gitattributes",
+    ".gitignore",
+    "log-usage",
+    "session-start-skills",
+}
+tracked_files = subprocess.check_output(
+    ["git", "ls-files"],
+    cwd=ROOT,
+    text=True,
+).splitlines()
+for relative in tracked_files:
+    if relative == "README.zh-CN.md":
+        continue
+    path = ROOT / relative
+    if not path.is_file():
+        continue
+    if path.suffix not in text_extensions and path.name not in extensionless_text:
+        continue
+    text = path.read_text(encoding="utf-8")
+    match = HAN.search(text)
+    assert not match, f"{relative} contains Han text outside README.zh-CN.md"
 
 print("plugin metadata tests passed")

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# SessionStart hook（所有平台）：① 注入「技能纪律」总纲；② Tier 1 计数——记一条「会话激活」。
-# 读同目录 skill-discipline.md，纯 bash 转义成 JSON（无 jq），按平台切换输出字段。
-# 会话级计数在 Codex / Cursor / Claude Code 通用（只要该平台会跑 SessionStart 钩子）。
+# Cross-platform SessionStart hook:
+# 1. Inject the skill-discipline primer.
+# 2. Record one Tier 1 session activation.
+# Reads skill-discipline.md beside this file, escapes it as JSON with pure bash
+# (no jq), and selects the host-specific output field.
 PATH="/usr/bin:/mingw64/bin:${PATH:-}"
 export PATH
 set -euo pipefail
@@ -16,17 +18,17 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "${SCRIPT_DIR}/usage-lib.sh"
 
 body="$(cat "${SCRIPT_DIR}/skill-discipline.md" 2>/dev/null \
-  || echo '（技能纪律文件缺失：hooks/skill-discipline.md）')"
+  || echo '(Skill discipline file missing: hooks/skill-discipline.md)')"
 
-# 总纲保持平台中立；这里按平台补一句「skill 在本平台怎么触发」的机制说明。
+# Keep the primer host-neutral; append only the host-specific invocation note.
 platform="$(cd_detect_platform)"
 case "$platform" in
-  claude-code) mech='> 本平台：用 **Skill 工具**调用对应 skill（别把 SKILL.md 当普通文件 cat 一遍就算触发）。' ;;
-  codex)       mech='> 本平台：skill 由 Codex 按描述**自动加载**，或在提示里用 `$skill-name` 显式触发；别自己 cat 正文。' ;;
+  claude-code) mech='> On this host, invoke the skill with the **Skill tool**. Reading `SKILL.md` as an ordinary file does not count as invoking it.' ;;
+  codex)       mech='> On this host, Codex can load a skill automatically from its description or explicitly through `$skill-name`. Do not load it by printing the file yourself.' ;;
   *)           mech='' ;;
 esac
 
-# JSON 字符串转义（纯 bash 参数替换，无 jq）。
+# Escape a JSON string with bash parameter expansion only.
 escape_for_json() {
     local s="$1"
     s="${s//\\/\\\\}"; s="${s//\"/\\\"}"
@@ -40,11 +42,13 @@ ${mech}
 </EXTREMELY_IMPORTANT>"
 esc="$(escape_for_json "$wrapped")"
 
-# Tier 1 计数：写文件（不影响下面 stdout 的注入 JSON）。
+# Tier 1 counting writes to a file and does not affect the injection JSON.
 cd_write_record session "" "$PWD"
 
-# 首次进入某个 git 仓库根目录时，放一份空的项目引导骨架（只创建、绝不覆盖、不打断主流程）。
-# 骨架内容故意留空，靠 context-hygiene 的规矩随项目「确认一件、写一行」地长大——这里不写死任何项目内容。
+# Seed an empty project guide at the Git root on first entry. Create only,
+# never overwrite, and never interrupt the main workflow. The skeleton stays
+# deliberately empty and grows one confirmed line at a time under
+# context-hygiene; this hook must not hard-code project facts.
 seed_agent_doc() {
   case "${CD_SEED_AGENT_DOC:-1}" in
     0|false|False|FALSE|no|No|NO|off|Off|OFF) return 0 ;;
@@ -62,8 +66,9 @@ seed_agent_doc() {
 }
 seed_agent_doc || true
 
-# 注入：Cursor 用 additional_context；Copilot/SDK 用顶层 additionalContext；
-# 其余（Claude Code / Codex 及默认）用 hookSpecificOutput.additionalContext。
+# Cursor uses additional_context; Copilot/SDK uses top-level additionalContext;
+# Claude Code, Codex, and the default path use
+# hookSpecificOutput.additionalContext.
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
   printf '{"additional_context":"%s"}\n' "$esc"
 elif [ -n "${COPILOT_CLI:-}" ]; then

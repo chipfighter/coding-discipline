@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "coding-discipline",
-  "description": "瘦但有牙的双层护栏 —— spec 同步（防跨 session 目标漂移）+ 设计先行 / TDD / 系统化调试 / 优先级评审 / 证据式验证 / git 流程 / 上下文防毒。",
+  "description": "Lean, firm guardrails for coding agents: spec sync plus risk-triggered design alignment, TDD, root-cause debugging, prioritized review, evidence-based verification, disciplined git, and context hygiene.",
   "owner": {
     "name": "chipfighter"
   },
@@ -9,7 +9,7 @@
     {
       "name": "coding-discipline",
       "source": "./plugins/coding-discipline",
-      "description": "8 个「瘦但有牙」skill(含 spec-sync 目标同步、context-hygiene 上下文防毒)——条件命中才触发、触发后不讲价 + 每场自动注入的技能纪律 + 被动用量计数。附首次进项目自动生成的引导文档（CLAUDE.md / AGENTS.md）。"
+      "description": "Eight lean but firm skills, including spec-sync for durable intent and context-hygiene against stale documentation. They trigger only when their conditions match and stay strict once active. Includes a SessionStart discipline primer, passive local usage counting, and first-entry guide-doc seeding for CLAUDE.md / AGENTS.md."
     }
   ]
 }

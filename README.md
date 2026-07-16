@@ -1,14 +1,49 @@
 # coding-discipline
 
-**English** → [README_EN.md](README_EN.md)
+**Chinese** → [README.zh-CN.md](README.zh-CN.md)
 
-**防 AI 两件事：做偏，和跳步。**
+**Guardrails, not a workflow.**
 
-给 AI 编程助手的双层护栏插件：**spec 同步**减少跨 session 的目标漂移——你拍板的目标、边界、验收写回 spec（真源），降低下一轮按旧目标开工的概率；**风险触发纪律**减少关键工程步骤被跳过——需求没对齐先对齐、可测的行为先写测试、修 bug 先找根因、说「做完了」先拿证据。8 个 skill + 2 个 hook，装一次全局生效，Claude Code 和 Codex 都能用。
+AI coding agents tend to fail in two expensive ways:
 
-它不接管 Plan、子 agent、worktree 或开发工作流。每条 skill 只有 30 行左右，条件命中才触发——单 session 普通任务不强制建 spec，小改动不打扰，触发了就不讲价。
+1. **They drift off-goal.** A decision is confirmed in chat, but the next
+   session reads a stale spec and builds the old target.
+2. **They skip steps.** They code before requirements are aligned, patch
+   symptoms before finding the root cause, or claim success without current
+   evidence.
 
-## 安装
+`coding-discipline` is a lightweight, workflow-agnostic plugin that addresses
+both:
+
+- **Spec sync** writes confirmed goals, non-goals, constraints, and acceptance
+  criteria back to the current source of truth when later sessions would
+  otherwise act on stale intent.
+- **Risk-triggered discipline** invokes firm engineering guardrails only when
+  their conditions match: design alignment, TDD, systematic debugging,
+  prioritized review, evidence-before-done, disciplined git flow, and context
+  hygiene.
+
+It does **not** replace Plan mode, launch subagents, orchestrate worktrees,
+choose models, or force every task through a spec workflow. Small changes stay
+small. When a risk trigger matches, the corresponding skill stays firm.
+
+8 skills + 2 hooks. Install once, apply globally. Supports Claude Code and
+Codex.
+
+## Why this exists
+
+The surrounding tools solve different layers:
+
+| project | primary role |
+|---|---|
+| [Superpowers](https://github.com/obra/superpowers) | a complete software-development methodology and agentic workflow |
+| [Spec Kit](https://github.com/github/spec-kit) / [OpenSpec](https://github.com/Fission-AI/OpenSpec) | an explicit spec-driven workflow and artifact lifecycle |
+| **coding-discipline** | a small guardrail layer that preserves intent and blocks risky shortcuts without taking over the workflow |
+
+Use it when you want more discipline than a bare coding agent, but do not want
+another orchestration layer.
+
+## Install
 
 ### Codex
 
@@ -17,94 +52,160 @@ codex plugin marketplace add chipfighter/coding-discipline
 codex plugin add coding-discipline@coding-discipline
 ```
 
-装完新开一个 task 生效。第一次启用或 hook 变更后，Codex 会要求审核 hook，用 `/hooks` 查看并信任。想先本地试装，把第一行换成 `codex plugin marketplace add .`。
+Open a new task after installation. The first time a hook is enabled, and
+whenever it changes, Codex asks you to review it. Use `/hooks` to inspect and
+trust it.
+
+To test a local checkout, replace the first command with:
+
+```bash
+codex plugin marketplace add .
+```
 
 ### Claude Code
 
-```
+```text
 /plugin marketplace add chipfighter/coding-discipline
 /plugin install coding-discipline@coding-discipline
 ```
 
-第一行把本仓库添加为插件源（自托管分发，不走官方商店），第二行安装。装完新开一个 session 生效。想先本地试装，把第一行的仓库名换成本地路径。
+The first command adds this repository as a self-hosted plugin source; the
+second installs the plugin. Open a new session after installation. To test a
+local checkout, replace the repository name in the first command with a local
+path.
 
-### 只要 skills、不要 hook（Codex）
+### Skills only, without hooks (Codex)
 
-Codex 原生支持 `SKILL.md`，直接把 8 个 skill 拷进用户技能目录就能用：
+Codex supports `SKILL.md` directly:
 
 ```bash
 mkdir -p ~/.agents/skills
 cp -r plugins/coding-discipline/skills/* ~/.agents/skills/
 ```
 
-Windows PowerShell 用 `Copy-Item -Recurse "plugins\coding-discipline\skills\*" "$HOME\.agents\skills\"`。
+Windows PowerShell:
 
-这种装法没有 SessionStart 注入、计数和自动骨架。想要全局纪律，自行把 `hooks/skill-discipline.md` 的内容合并进 `~/.codex/AGENTS.md`（别重复追加）。
-
-## 里面有什么
-
-### 8 个 skill（条件命中才触发）
-
-| skill | 什么时候触发 |
-|---|---|
-| `spec-sync` | 跨 session 工作里，拍板的结果 / 非目标 / 约束 / 验收没写回当前真源（spec），或现实与 spec 冲突到照做会错——经用户确认后只改受影响原句；已有 Issue / PRD / ADR 直接指定为 spec、不复制第二份；单 session 任务、实现细节不触发 |
-| `brainstorming` | 需求多解、方案要取舍、或改错代价高（权限 / 支付 / 迁移 / 对外接口）——先问清需求和设计、拿到批准再实现；明确的单点小改不触发 |
-| `tdd` | 行为能用自动化测试验证——红 → 绿 → 重构，没有失败测试就不写实现；文档 / 配置类改动不触发 |
-| `systematic-debugging` | 根因不明的 bug / 测试失败——先复现、反向追根因、根上修一处、补回归；报错直指原因的直接修 |
-| `code-review` | 多个模块需要配合 / 高风险内容 / 用户要求——按「正确性 → 合需求 → 安全 → 简洁 → 风格」看；纯文档 / 配置值 / 机械改名不因进 PR 触发 |
-| `verify-before-done` | 宣称"做好了"之前，任何任务不例外——只认最后一次相关改动后拿到、且刚好能证明结论的证据 |
-| `git-flow` | 开分支 / worktree / 提交 / 收尾——只给通用纪律，项目专属规则以项目自己的 `AGENTS.md` / `CLAUDE.md` 为准 |
-| `context-hygiene` | 读取项目文档 / 历史时——当前状态只看项目指定的最新文档，不主动读归档，也不另抄一套 spec |
-
-### 2 个 hook（启用即生效，不用手改 settings）
-
-- **SessionStart 注入**：每个 session 开场注入一段很短的「技能纪律」总纲——触发条件写在各 skill 的 description 里，命中必须调、未命中不硬调；优先级：用户最新指令 > 当前项目引导文档 > 本纪律。正文在 `hooks/skill-discipline.md`，想改口味直接改它。
-- **用量计数**：纯本地、不联网，记到 `~/.coding-discipline/usage.jsonl`——每开一个 session 记一次激活；Claude Code 上还能记到每次 skill 触发。看汇总跑 `bash hooks/skills-count.sh`，不想记就在启动前设 `CD_USAGE_ENABLED=0`。
-
-## 能力边界（诚实声明）
-
-skill 是提示词纪律，不是能保证每次执行的规则引擎——它降低失败概率，不提供 100% 保证。模型读不懂 description、判断不准该用哪个 skill 时，用三种更可靠的办法兜底：
-
-- 显式调用某个 skill（绕过自动路由）；
-- 在项目自己的 `CLAUDE.md` / `AGENTS.md` 里给关键目录 / 行为写硬规则——比如想要「本仓库所有 PR 都过 code-review」，写一行就行；
-- 真正要求每次都执行的事，交给 CI、lint、测试、required review 等硬性设施。
-
-路由出错（不该触发的触发了 / 该触发的没触发）请用仓库的「路由反馈」issue 模板报告——回归案例只从真实失败里长出来。
-
-## 项目引导文档：自动落一份空骨架
-
-第一次在某个 git 仓库开 session，插件会在仓库根放一份空的引导文档骨架——Claude Code 落 `CLAUDE.md`，Codex 落 `AGENTS.md`：
-
-- 只在文件不存在时创建、绝不覆盖已有的；从子目录或 worktree 启动也能找对仓库根。不想要就在启动前设 `CD_SEED_AGENT_DOC=0`。
-- 骨架故意是空的：每和用户拍板一件「光看代码看不出来」的事就补一行，随项目长大（规矩见 `context-hygiene`）。
-- 它不是本机缓存。确认后的项目规则通常应随仓库提交，供团队和后续 session 共享；不要在里面写密钥、令牌或个人隐私。
-
-## 依赖
-
-- **bash** —— macOS / Linux 自带；Windows 装 [Git for Windows](https://git-scm.com/download/win)，hook 通过 `hooks/run-hook.cmd` 自动找到 git-bash（故意不用 WSL 的 bash）。
-- 不需要 jq —— JSON 转义全用纯 bash，三平台行为一致。
-
-## 开发与验证
-
-```bash
-python tests/test-plugin-metadata.py   # manifest / hooks / skills 元数据
-bash tests/test-hooks.sh               # hook 行为（Linux / Git Bash）
+```powershell
+Copy-Item -Recurse "plugins\coding-discipline\skills\*" "$HOME\.agents\skills\"
 ```
 
-元数据测试同时约束每个 session 的固定注入开销（SessionStart 总纲 + 全部 skill description）不超过批准基线 1491 字（= v0.5.0 基线 1346 + 用户批准的 spec-sync description 145 字，一次性调整后继续零和）。触发效果以真实使用反馈持续校准，不设人工场景发版门槛。
+This route omits SessionStart injection, usage counting, and guide-doc seeding.
+If you want the global discipline primer, review
+`plugins/coding-discipline/hooks/skill-discipline.md` and merge it into
+`~/.codex/AGENTS.md` once.
 
-Windows 上再跑一遍真实的 Windows 入口：
+## The eight skills
+
+Each skill description defines both its trigger and its exclusions. The full
+instructions load only when the skill is selected.
+
+| skill | when it triggers |
+|---|---|
+| `spec-sync` | confirmed goals, non-goals, constraints, or acceptance criteria must survive across sessions, but the current source of truth is stale or missing |
+| `brainstorming` | requirements have multiple reasonable interpretations, design tradeoffs matter, or a wrong change would be expensive |
+| `tdd` | new or changed behavior can be verified with an automated regression test |
+| `systematic-debugging` | a bug, failure, or unexpected behavior has no established root cause |
+| `code-review` | changes affect coordination across modules, cross a high-risk boundary, or the user requests a review |
+| `verify-before-done` | before any claim that work is complete, fixed, tested, or ready |
+| `git-flow` | branching, worktrees, commits, tags, or branch wrap-up |
+| `context-hygiene` | entering a project, reading project history, or resolving conflicting documentation |
+
+The skills are intentionally short. They keep only the hard judgment rules that
+models routinely skip; the harness remains responsible for ordinary planning
+and execution.
+
+## The two hooks
+
+- **SessionStart discipline:** injects a compact, host-neutral primer that
+  requires matched skills to be formally invoked, preserves instruction
+  precedence, and tells the agent to answer in the user's language while
+  matching the repository language for files and comments.
+- **Passive local usage counting:** appends session activations to
+  `~/.coding-discipline/usage.jsonl`. Claude Code also exposes per-skill
+  invocations. Nothing is sent over the network.
+
+View the local summary:
+
+```bash
+bash plugins/coding-discipline/hooks/skills-count.sh
+```
+
+Disable counting:
+
+```bash
+CD_USAGE_ENABLED=0
+```
+
+## Project guide seeding
+
+On the first session inside a Git repository, the plugin creates an empty guide
+skeleton when the target file does not already exist:
+
+- Claude Code → `CLAUDE.md`
+- Codex → `AGENTS.md`
+
+The guide is seeded only at the repository root, including when the session
+starts in a nested directory or worktree. It never overwrites an existing file.
+Set `CD_SEED_AGENT_DOC=0` to disable it.
+
+The English skeleton is intentionally sparse. Add only confirmed project facts
+that cannot be inferred from the code. Agents still answer in the user's
+language. The guide is shared project context, not a machine-local cache:
+commit confirmed rules when the team and future sessions need them, and never
+store secrets, tokens, or personal data in it.
+
+## Honest limits
+
+Skills are prompt-level discipline, not a deterministic policy engine. They
+reduce failure probability; they cannot guarantee perfect routing or
+compliance.
+
+For stronger enforcement:
+
+- invoke a skill explicitly when routing must not be left to the model;
+- put repository-specific hard rules in that project's `CLAUDE.md` or
+  `AGENTS.md`;
+- put mechanical requirements in CI, lint, tests, branch protection, and
+  required review.
+
+Report false triggers and missed triggers with the repository's routing
+feedback issue template. Regression cases grow from real failures rather than a
+synthetic release suite.
+
+## Dependencies
+
+- **bash** — included on macOS and Linux. On Windows, install
+  [Git for Windows](https://git-scm.com/download/win); `run-hook.cmd` locates
+  Git Bash without selecting WSL's `bash.exe`.
+- No `jq` — JSON escaping and local usage records use pure bash.
+
+## Development and verification
+
+```bash
+python tests/test-plugin-metadata.py
+bash tests/test-hooks.sh
+```
+
+On Windows:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1
 ```
 
-GitHub Actions 在 Ubuntu 和 Windows 上跑同样的验证。
+The metadata test freezes the v0.8.0 English fixed-context baseline at 4944
+characters: the SessionStart primer plus all eight skill descriptions may not
+grow unless text is removed elsewhere. GitHub Actions runs the same validation
+on Ubuntu and Windows.
 
-## 致谢
+## Credits
 
-纪律理念与跨平台 hook 机制（polyglot `run-hook.cmd`、SessionStart 注入、无 jq 的纯 bash JSON 转义）来自 [superpowers](https://github.com/obra/superpowers)（Jesse Vincent，MIT）。本项目把这套思路收敛成一组精简的中文纪律 skill，并补齐了 Windows / git-bash 适配。
+The discipline philosophy and cross-platform hook foundation — including the
+polyglot `run-hook.cmd`, SessionStart injection, and pure-bash JSON escaping —
+come from [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent
+(MIT). This project narrows that foundation into a workflow-agnostic guardrail
+layer and adds spec synchronization, risk-triggered routing, and
+Windows/Git-Bash support.
 
 ## License
 
-MIT — 见 [LICENSE](LICENSE)。
+MIT — see [LICENSE](LICENSE).

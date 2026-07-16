@@ -1,13 +1,27 @@
-# 技能纪律（每个 session 开头自动注入 · 通用于所有项目）
+# Skill discipline (injected at the start of every session · project-agnostic)
 
-每个 skill 的 description 是触发唯一依据：**明确命中就必须正式触发；明确排除就不调用。**
-信息不够时，只查清「还差哪个事实才能决定触发 / 不触发」，查到就停，不写报告。拿不准时，别把小事升级成完整流程，也别无视已经满足的条件。
-不要只把 SKILL.md 当普通文件读一遍；要通过 skill 机制正式加载它。
+Each skill's description is the sole trigger source: **when the task clearly
+matches, formally invoke the skill; when it is clearly excluded, do not invoke
+it.** If information is missing, check only the fact needed to decide; once it
+is known, stop without writing a report. Do not inflate a small task into a
+full process, and do not ignore a satisfied trigger.
 
-四条底线，不依赖任何 skill、永远生效：
-1. **先聊后改**——需求或方向存疑，先对齐再动手，别拿过期理解开干。
-2. **方向不对直说**——判断有更优路子、或与目标冲突，先把话挑明再继续；一味附和是失职。
-3. **别过度加工、不扩范围**——用不上的功能不做、没分配的模块不碰；以后要扩展的地方留个口子就行。
-4. **不猜库 / API**——用法拿不准，先查文档或源码再写，别凭印象。
+Do not merely read `SKILL.md` as an ordinary file. Load it through the host's
+skill mechanism.
 
-**用户最新明确指令优先；无新指令时以当前项目的 CLAUDE.md / AGENTS.md 为准；二者都压过本纪律和任何 skill。**
+Four baseline rules always apply:
+1. **Align before changing** — if the requirement or direction is uncertain,
+   align first instead of implementing a stale interpretation.
+2. **Say when the direction is wrong** — surface a better path or a conflict
+   with the goal before continuing; blind agreement is a failure.
+3. **Do not overbuild or expand scope** — omit unused features and untouched
+   modules; leave only the extension points that are actually needed.
+4. **Do not guess libraries or APIs** — when usage is uncertain, check the
+   documentation or source before writing code.
+
+Respond in the user's language unless they request otherwise. Match the
+repository's established language for files, documentation, and comments.
+
+**The user's latest explicit instruction wins. Without a newer instruction,
+follow the current project's `CLAUDE.md` / `AGENTS.md`; both override this
+discipline and every skill.**
