@@ -1,6 +1,6 @@
 {
   "name": "coding-discipline",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Workflow-agnostic guardrails for AI coding agents: spec sync preserves confirmed intent across sessions, while risk-triggered skills enforce design alignment, TDD, root-cause debugging, prioritized review, evidence-before-done, disciplined git, and context hygiene.",
   "author": {
     "name": "chipfighter"
