@@ -2,7 +2,8 @@
 
 **English** → [README.md](README.md)
 
-**只加护栏，不接管工作流。**
+**只加护栏，不接管工作流。** 日常改动零打扰；具名失败模式临近才介入，
+介入就不松。
 
 AI 编程助手经常以两种代价很高的方式失败：
 
@@ -24,6 +25,15 @@ skill 就保持严格。
 
 8 个 skill + 2 个 hook，安装一次，全局生效。支持 Claude Code 和 Codex。
 
+<!-- TODO(demo)：录两段约 30 秒的视频后，在 github.com 编辑器里把本注释块
+替换掉（直接把 .mp4 拖进去，GitHub 会托管）。
+
+## 平时安静，关键时刻不松手
+
+第一幕——日常小改动：没有任何 skill 触发，改完就结束。
+第二幕——没有证据就宣称"完成"：verify-before-done 拦下，直到测试真正跑过。
+-->
+
 ## 为什么做这个项目
 
 周边工具解决的是不同层次的问题：
@@ -36,6 +46,27 @@ skill 就保持严格。
 
 如果你觉得裸用 coding agent 不够稳，但又不想再加一层编排系统，这个项目
 就是为这种需求设计的。
+
+### 实测固定开销
+
+这一层每个 session 的固定上下文开销，和完整工作流框架其实差不多——我们
+把两边都测了，脚本公开：
+
+| 每 session 固定注入（2026-07-17 实测） | coding-discipline v0.8.0 | superpowers v6.1.1 |
+|---|---|---|
+| SessionStart hook 注入文本 | 1,630 字符 | 3,277 字符 |
+| skill 元数据（name + description） | 3,600 字符（8 个 skill） | 2,279 字符（14 个 skill） |
+| **合计** | **5,230 字符（约 1.3k tokens）** | **5,556 字符（约 1.4k tokens）** |
+
+两边用同一套规则测量：SessionStart hook 注入的全部文本，加上宿主为路由
+加载的 skill 元数据；skill 正文两边都不计入——它们只在触发时加载。复现
+脚本见
+[experiments/context-measure/measure_fixed_context.py](experiments/context-measure/measure_fixed_context.py)。
+
+所以差别不在启动 tokens，而在介入频率。工作流框架把每一次对话都带进自己
+的流程——brainstorm、plan 文档、子 agent 派发、评审循环；coding-discipline
+在具名失败模式临近之前不出现，出现时也不新增子 agent、plan 文件或任何
+制品。
 
 ## 安装
 
