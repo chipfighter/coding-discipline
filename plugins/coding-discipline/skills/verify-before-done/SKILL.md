@@ -7,7 +7,7 @@ Hard rule: **Only evidence gathered after the last relevant change to the code, 
 - Claiming completion without sufficient evidence = lying; running the full test suite for a typo = waste.
 - You may reuse evidence just gathered, but state when it was gathered and confirm that no code was changed, nothing was pulled, and the environment was not modified afterward. If you cannot say for sure, check again.
 
-## Gate (before any claim of success or completion)
+## Required checks (before any claim of success or completion)
 1. What claim must be proven? What check is just sufficient (command output / diff / artifact inspection…)?
 2. Was the evidence gathered after the last relevant change? Yes—state when. No / uncertain—**check again**.
 3. If you ran a command, read all output, inspect the exit code, and count failures. If you inspected a diff or artifact, state what you checked and the result.
@@ -27,8 +27,8 @@ If a command cannot run (missing environment, broken dependencies, timeout), **v
 | "Tests are green = requirements are met" | Check each requirement explicitly; green tests alone are not enough. |
 | Only part of the suite ran | This does not mean the whole suite passed. |
 
-## Red lines
+## Hard rules
 - Do not substitute "should", "probably", or "looks right" for evidence.
 - Do not celebrate ("Done!" / "Fixed!" / "Perfect!") before obtaining evidence.
-- Before committing, pushing, or opening a PR or MR after an important change, pass the gate above.
+- Before committing, pushing, or opening a PR or MR after an important change, pass the checks above.
 - If this work includes a confirmed change that makes the current source of truth inaccurate, or the work spans sessions but still lacks a source of truth, use spec-sync before claiming it is ready for handoff. If the user explicitly refuses persistence, explain the consequence and follow their latest instruction.

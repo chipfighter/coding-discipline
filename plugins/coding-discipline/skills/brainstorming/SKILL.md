@@ -3,7 +3,7 @@ name: brainstorming
 description: Use before coding when requirements have multiple reasonable interpretations, approaches require tradeoffs, or mistakes would be costly (permissions/payments/data migration/public APIs/data structures/hard-to-revert changes). Clarify requirements and design one question at a time, then get approval before implementation. Do not trigger for a focused small change with a clear goal and approach, or for mechanical edits (copy/constants/config values).
 ---
 
-**Hard gate: write no code until the design is approved.** Once this skill triggers, follow it through—the design may be only a few sentences, but it must be explained and approved first. Deciding midway that it is "actually simple" is not a reason to exit: "simple" often means unstated assumptions.
+**Hard rule: write no code until the design is approved.** Once this skill triggers, follow it through—the design may be only a few sentences, but it must be explained and approved first. Deciding midway that it is "actually simple" is not a reason to exit: "simple" often means unstated assumptions.
 
 ## Excuses that surface when you want to skip design
 | What you tell yourself | Reality |
