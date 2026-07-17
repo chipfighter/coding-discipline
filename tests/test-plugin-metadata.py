@@ -11,10 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "coding-discipline"
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
 HAN = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]")
-# v0.8.0 resets the fixed-context baseline once for the English migration.
-# Freeze it again afterwards: any new primer or description text must be offset
-# elsewhere (zero-sum).
-FIXED_CONTEXT_BUDGET = 4944
+# Re-frozen after the 2026-07 dedup trim (4944 at v0.8.0). Any new primer or
+# description text must be offset elsewhere (zero-sum).
+FIXED_CONTEXT_BUDGET = 4580
 
 
 def load_json(path: Path) -> dict:

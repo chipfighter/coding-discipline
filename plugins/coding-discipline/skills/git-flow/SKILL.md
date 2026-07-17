@@ -1,6 +1,6 @@
 ---
 name: git-flow
-description: Use when creating a branch, using worktrees for parallel work, committing, or wrapping up. Covers branch naming, conventional commits, short-lived branches, worktree isolation, and final merge/cleanup; specific protected branches, CI, and merge methods defer to the project's AGENTS.md / CLAUDE.md.
+description: Use when creating a branch, using worktrees for parallel work, committing, or wrapping up. Covers branch naming, conventional commits, short-lived branches, worktree isolation, and final merge/cleanup.
 ---
 
 > Branch naming rules, protected branches, whether to merge directly or through a PR / MR, whether merging triggers CI, and **how to choose versions / who creates tags** are project-specific rules governed by this repository's `AGENTS.md` / `CLAUDE.md`. This skill provides only general discipline.

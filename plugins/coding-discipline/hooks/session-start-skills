@@ -25,7 +25,7 @@ platform="$(cd_detect_platform)"
 case "$platform" in
   claude-code) mech='> On this host, invoke the skill with the **Skill tool**. Reading `SKILL.md` as an ordinary file does not count as invoking it.' ;;
   codex)       mech='> On this host, Codex can load a skill automatically from its description or explicitly through `$skill-name`. Do not load it by printing the file yourself.' ;;
-  *)           mech='' ;;
+  *)           mech='> Load skills through the skill mechanism of this host. Reading `SKILL.md` as an ordinary file does not count as invoking it.' ;;
 esac
 
 # Escape a JSON string with bash parameter expansion only.
