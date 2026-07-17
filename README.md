@@ -42,10 +42,8 @@ clarifying question, through the skill system first.
 coding-discipline starts from the opposite default. Skills stay dormant until
 a named failure mode is at risk; routine work runs untouched. The fixed
 context injected per session is ~1.2k tokens and cannot silently grow — a CI
-test fails when it does. Measured with symmetric rules, a workflow
-framework's fixed injection is about the same size; the cost that actually
-differs is how often a plugin inserts itself, and what it spawns when it
-does. [Measure both yourself](experiments/context-measure/measure_fixed_context.py).
+test fails the build when it does. The cost that actually differs between
+plugins is how often one inserts itself, and what it spawns when it does.
 
 On top of the guardrails, this project adds a piece of its own: the spec
 layer. spec-sync writes confirmed goals, non-goals, hard constraints, and
