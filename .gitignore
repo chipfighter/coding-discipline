@@ -4,3 +4,8 @@
 # Logs / temporary files
 *.log
 *.err
+
+# Local working notes (kept out of the public repo)
+/CLAUDE.md
+/discussion/
+/experiments/
