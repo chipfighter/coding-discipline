@@ -25,48 +25,26 @@ skill 就保持严格。
 
 8 个 skill + 2 个 hook，安装一次，全局生效。支持 Claude Code 和 Codex。
 
-<!-- TODO(demo)：录两段约 30 秒的视频后，在 github.com 编辑器里把本注释块
-替换掉（直接把 .mp4 拖进去，GitHub 会托管）。
-
-## 平时安静，关键时刻不松手
-
-第一幕——日常小改动：没有任何 skill 触发，改完就结束。
-第二幕——没有证据就宣称"完成"：verify-before-done 拦下，直到测试真正跑过。
--->
-
 ## 为什么做这个项目
 
-周边工具解决的是不同层次的问题：
+[Superpowers](https://github.com/obra/superpowers) 证明了工程纪律可以以
+skill 的形式存在——本插件的跨平台 hook 底座也来自它（见致谢）。但
+Superpowers 是一整套工作流：它的引导词要求 agent 在给出任何回复（包括
+澄清问题）之前，都先走一遍 skill 系统。
 
-| 项目 | 主要职责 |
-|---|---|
-| [Superpowers](https://github.com/obra/superpowers) | 完整的软件开发方法论和 agent 工作流 |
-| [Spec Kit](https://github.com/github/spec-kit) / [OpenSpec](https://github.com/Fission-AI/OpenSpec) | 显式的 spec-driven 工作流和制品生命周期 |
-| **coding-discipline** | 不接管工作流，只负责保存意图并阻止高风险捷径的小型护栏层 |
+coding-discipline 的默认值反过来：skill 平时休眠，只在具名失败模式临近
+时才介入，日常改动零打扰。每个 session 的固定注入约 1.2k tokens，而且
+不会悄悄变大——一旦增长，CI 测试直接失败。用同一套规则实测，完整工作
+流框架的固定注入其实差不多大；真正不同的开销是介入频率，以及介入时会
+带出什么。[脚本在这里，可以自己测](experiments/context-measure/measure_fixed_context.py)。
+
+在护栏之上，这个项目加了一块自己的东西：spec 层。spec-sync 把已确认的
+目标、非目标、硬约束和验收标准写回项目已有的文档——不需要
+proposal → approve → archive 生命周期，也不新增任何制品——下一个
+session 就不会把你已经否掉的方案重新做一遍。
 
 如果你觉得裸用 coding agent 不够稳，但又不想再加一层编排系统，这个项目
 就是为这种需求设计的。
-
-### 实测固定开销
-
-这一层每个 session 的固定上下文开销，和完整工作流框架其实差不多——我们
-把两边都测了，脚本公开：
-
-| 每 session 固定注入（2026-07-17 实测） | coding-discipline (main) | superpowers v6.1.1 |
-|---|---|---|
-| SessionStart hook 注入文本 | 1,474 字符 | 3,277 字符 |
-| skill 元数据（name + description） | 3,392 字符（8 个 skill） | 2,279 字符（14 个 skill） |
-| **合计** | **4,866 字符（约 1.2k tokens）** | **5,556 字符（约 1.4k tokens）** |
-
-两边用同一套规则测量：SessionStart hook 注入的全部文本，加上宿主为路由
-加载的 skill 元数据；skill 正文两边都不计入——它们只在触发时加载。复现
-脚本见
-[experiments/context-measure/measure_fixed_context.py](experiments/context-measure/measure_fixed_context.py)。
-
-所以差别不在启动 tokens，而在介入频率。工作流框架把每一次对话都带进自己
-的流程——brainstorm、plan 文档、子 agent 派发、评审循环；coding-discipline
-在具名失败模式临近之前不出现，出现时也不新增子 agent、plan 文件或任何
-制品。
 
 ## 安装
 
