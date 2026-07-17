@@ -52,11 +52,11 @@ skill 就保持严格。
 这一层每个 session 的固定上下文开销，和完整工作流框架其实差不多——我们
 把两边都测了，脚本公开：
 
-| 每 session 固定注入（2026-07-17 实测） | coding-discipline v0.8.0 | superpowers v6.1.1 |
+| 每 session 固定注入（2026-07-17 实测） | coding-discipline (main) | superpowers v6.1.1 |
 |---|---|---|
-| SessionStart hook 注入文本 | 1,630 字符 | 3,277 字符 |
-| skill 元数据（name + description） | 3,600 字符（8 个 skill） | 2,279 字符（14 个 skill） |
-| **合计** | **5,230 字符（约 1.3k tokens）** | **5,556 字符（约 1.4k tokens）** |
+| SessionStart hook 注入文本 | 1,474 字符 | 3,277 字符 |
+| skill 元数据（name + description） | 3,392 字符（8 个 skill） | 2,279 字符（14 个 skill） |
+| **合计** | **4,866 字符（约 1.2k tokens）** | **5,556 字符（约 1.4k tokens）** |
 
 两边用同一套规则测量：SessionStart hook 注入的全部文本，加上宿主为路由
 加载的 skill 元数据；skill 正文两边都不计入——它们只在触发时加载。复现
@@ -206,9 +206,9 @@ Windows：
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1
 ```
 
-元数据测试把 v0.8.0 的英文固定上下文基线冻结为 4944 个字符：SessionStart
-总纲与 8 条 skill description 的总长度不能增长，除非从其他位置删掉等量
-内容。GitHub Actions 会在 Ubuntu 和 Windows 上执行相同验证。
+元数据测试把英文固定上下文基线冻结为 4580 个字符（v0.8.0 时为 4944，
+去重删减后重新冻结）：SessionStart 总纲与 8 条 skill description 的总长度
+不能增长，除非从其他位置删掉等量内容。GitHub Actions 会在 Ubuntu 和 Windows 上执行相同验证。
 
 ## 致谢
 

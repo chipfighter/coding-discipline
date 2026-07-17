@@ -59,11 +59,11 @@ another orchestration layer.
 The fixed per-session context cost of this layer is about the same as a full
 workflow framework — we measured both and publish the script:
 
-| fixed injection per session (measured 2026-07-17) | coding-discipline v0.8.0 | superpowers v6.1.1 |
+| fixed injection per session (measured 2026-07-17) | coding-discipline (main) | superpowers v6.1.1 |
 |---|---|---|
-| SessionStart hook payload | 1,630 chars | 3,277 chars |
-| skill metadata (names + descriptions) | 3,600 chars (8 skills) | 2,279 chars (14 skills) |
-| **total** | **5,230 chars (~1.3k tokens)** | **5,556 chars (~1.4k tokens)** |
+| SessionStart hook payload | 1,474 chars | 3,277 chars |
+| skill metadata (names + descriptions) | 3,392 chars (8 skills) | 2,279 chars (14 skills) |
+| **total** | **4,866 chars (~1.2k tokens)** | **5,556 chars (~1.4k tokens)** |
 
 Both plugins are measured with the same rules: everything the SessionStart
 hook injects, plus the skill metadata the host loads for routing. Skill
@@ -225,9 +225,10 @@ On Windows:
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1
 ```
 
-The metadata test freezes the v0.8.0 English fixed-context baseline at 4944
-characters: the SessionStart primer plus all eight skill descriptions may not
-grow unless text is removed elsewhere. GitHub Actions runs the same validation
+The metadata test freezes the English fixed-context baseline at 4580
+characters (4944 at v0.8.0, re-frozen after a dedup trim): the SessionStart
+primer plus all eight skill descriptions may not grow unless text is removed
+elsewhere. GitHub Actions runs the same validation
 on Ubuntu and Windows.
 
 ## Credits
