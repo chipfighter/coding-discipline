@@ -33,8 +33,8 @@ human-agent intent alignment.
 - Admit a generic high-risk signal only if it stays broadly costly across
   industries and languages; project-specific risks belong in project guidance.
 - Fixed injected context is zero-sum: adding text requires removing equivalent
-  text elsewhere. v0.8.0 establishes a one-time 4944-character English
-  baseline, frozen again after the migration.
+  text elsewhere. The English baseline was re-frozen at 4580 characters after
+  the 2026-07 dedup trim (4944 at v0.8.0).
 - Regression cases grow only from real false-trigger / missed-trigger reports
   and must map to the description change they justify. Do not maintain a
   synthetic scenario suite or make one a release gate.

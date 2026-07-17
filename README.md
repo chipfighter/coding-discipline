@@ -2,7 +2,8 @@
 
 **Chinese** → [README.zh-CN.md](README.zh-CN.md)
 
-**Guardrails, not a workflow.**
+**Guardrails, not a workflow.** Quiet on routine work; firm when a named
+failure mode is at risk.
 
 AI coding agents tend to fail in two expensive ways:
 
@@ -30,6 +31,16 @@ small. When a risk trigger matches, the corresponding skill stays firm.
 8 skills + 2 hooks. Install once, apply globally. Supports Claude Code and
 Codex.
 
+<!-- TODO(demo): record two ~30s clips and replace this comment block via the
+github.com editor (drag the .mp4 files in; GitHub hosts them).
+
+## Quiet by default, firm when it matters
+
+Scene 1 — a routine edit: no skill fires, the change just happens.
+Scene 2 — "done" is claimed without evidence: verify-before-done blocks the
+claim until tests actually run.
+-->
+
 ## Why this exists
 
 The surrounding tools solve different layers:
@@ -42,6 +53,28 @@ The surrounding tools solve different layers:
 
 Use it when you want more discipline than a bare coding agent, but do not want
 another orchestration layer.
+
+### Fixed cost, measured
+
+The fixed per-session context cost of this layer is about the same as a full
+workflow framework — we measured both and publish the script:
+
+| fixed injection per session (measured 2026-07-17) | coding-discipline (main) | superpowers v6.1.1 |
+|---|---|---|
+| SessionStart hook payload | 1,474 chars | 3,277 chars |
+| skill metadata (names + descriptions) | 3,392 chars (8 skills) | 2,279 chars (14 skills) |
+| **total** | **4,866 chars (~1.2k tokens)** | **5,556 chars (~1.4k tokens)** |
+
+Both plugins are measured with the same rules: everything the SessionStart
+hook injects, plus the skill metadata the host loads for routing. Skill
+bodies are excluded on both sides — they load only on trigger. Reproduce with
+[experiments/context-measure/measure_fixed_context.py](experiments/context-measure/measure_fixed_context.py).
+
+So the difference is not startup tokens; it is intervention frequency. A
+workflow framework routes every conversation through its process —
+brainstorming, plan documents, subagent dispatch, review loops.
+coding-discipline stays out of the way until a named failure mode is at risk,
+and even then it adds no subagents, no plan files, no new artifacts.
 
 ## Install
 
@@ -192,9 +225,10 @@ On Windows:
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1
 ```
 
-The metadata test freezes the v0.8.0 English fixed-context baseline at 4944
-characters: the SessionStart primer plus all eight skill descriptions may not
-grow unless text is removed elsewhere. GitHub Actions runs the same validation
+The metadata test freezes the English fixed-context baseline at 4580
+characters (4944 at v0.8.0, re-frozen after a dedup trim): the SessionStart
+primer plus all eight skill descriptions may not grow unless text is removed
+elsewhere. GitHub Actions runs the same validation
 on Ubuntu and Windows.
 
 ## Credits

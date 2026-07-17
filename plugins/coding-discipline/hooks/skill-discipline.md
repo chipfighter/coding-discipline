@@ -1,13 +1,10 @@
-# Skill discipline (injected at the start of every session · project-agnostic)
+# Skill discipline
 
 Each skill's description is the sole trigger source: **when the task clearly
 matches, formally invoke the skill; when it is clearly excluded, do not invoke
 it.** If information is missing, check only the fact needed to decide; once it
 is known, stop without writing a report. Do not inflate a small task into a
 full process, and do not ignore a satisfied trigger.
-
-Do not merely read `SKILL.md` as an ordinary file. Load it through the host's
-skill mechanism.
 
 Four baseline rules always apply:
 1. **Align before changing** — if the requirement or direction is uncertain,
