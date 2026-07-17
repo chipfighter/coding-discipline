@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
   "description": "Workflow-agnostic guardrails for AI coding agents: spec-sync preserves confirmed intent across sessions; brainstorming, TDD, root-cause debugging, prioritized review, evidence-before-done, disciplined git, and context hygiene trigger only when their risk conditions match. Includes a SessionStart discipline primer, optional guide-doc seeding, and passive local usage counting.",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "author": {
     "name": "chipfighter"
   },
