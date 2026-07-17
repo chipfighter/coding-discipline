@@ -3,7 +3,7 @@ name: systematic-debugging
 description: Use before proposing a permanent fix for bugs, test failures, or unexpected behavior with an unknown root cause—mandatory when symptoms are far from the cause, a prior fix failed, or the issue crosses components. Reproduce, trace backward to the root cause, fix once at the source, and add a regression test. Emergency containment must be a reversible temporary mitigation explicitly identified as not a root-cause fix. Do not trigger for obvious errors whose message identifies the cause (syntax/typo/missing import); fix those directly.
 ---
 
-Iron law: **do not package a guess as a permanent fix before locating the root cause.** If the user explicitly needs emergency containment, you may apply a reversible temporary mitigation first, but you must state its risks and that the root cause is not fixed, then continue investigating.
+Hard rule: **do not package a guess as a permanent fix before locating the root cause.** If the user explicitly needs emergency containment, you may apply a reversible temporary mitigation first, but you must state its risks and that the root cause is not fixed, then continue investigating.
 
 ## 1. Reproduce
 - Read the error message and full stack trace carefully—the answer is often there. Do not skip them. Note the line number, file, and error code.

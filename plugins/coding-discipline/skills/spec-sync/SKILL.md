@@ -3,7 +3,7 @@ name: spec-sync
 description: Use in cross-session work when user-confirmed outcomes, non-goals, hard constraints, or acceptance criteria have not been written back to the current source of truth (spec), or reality conflicts with it enough that following it would be wrong; also use during wrap-up or handoff when a source of truth should exist but does not. Edit only the affected original wording; do not keep separate old and new versions. Do not trigger for work that can be completed within one session, local implementation details, verification against existing acceptance criteria, locating the source of truth, or ordinary documentation edits.
 ---
 
-Iron rule: **A change confirmed in conversation must not remain only in the conversation.** If user-confirmed intent that affects future collaboration or acceptance is not written back to the source of truth in this session, the next session cannot even see that the user changed their mind—intent that was never persisted cannot be recovered.
+Hard rule: **A change confirmed in conversation must not remain only in the conversation.** If user-confirmed intent that affects future collaboration or acceptance is not written back to the source of truth in this session, the next session cannot even see that the user changed their mind—intent that was never persisted cannot be recovered.
 
 ## The decision test (the only test for whether to sync)
 > If the next session or another agent read only the current source of truth, would it continue toward an outcome the user has rejected, violate a new constraint, or judge completion against stale criteria? If so, the change must be synced.
@@ -27,7 +27,7 @@ The current desired outcome; explicit non-goals; hard constraints; acceptance cr
 - **No write access to the source of truth** (for example, a PRD owned by someone else): do not overstep. State clearly what is stale and who should update it.
 - **The user explicitly refuses write-back**: explain that the next session may read the old target, then comply. An old spec must never be used to block the user's latest instruction.
 
-## Red lines
+## Hard rules
 - Do not write changes to outcomes / non-goals / hard constraints / acceptance criteria into the source of truth until the user has confirmed them.
 - If the implementation is verified but the source of truth is not synced, report those as two separate facts. Do not claim “the source of truth is synced” or “handoff will preserve everything.”
 - Complete the sync **within this session**. Do not expect a later session to recover intent that was never persisted.

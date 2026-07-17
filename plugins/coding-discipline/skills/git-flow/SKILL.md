@@ -26,5 +26,5 @@ description: Use when creating a branch, using worktrees for parallel work, comm
 ## Wrap-up
 - **Verify that all tests pass before wrapping up** (see verify-before-done). A failing branch must not proceed to merge / PR.
 - Offer **explicit choices** instead of asking an open-ended “What next?”: ① merge into the baseline branch ② push and open a PR/MR ③ keep as-is ④ discard.
-- Iron sequence: **merge and verify success → remove the worktree → delete the branch**. A branch still referenced by a worktree cannot be deleted; before running `git worktree remove`, `cd` back to the main repository.
+- Always in this order: **merge and verify success → remove the worktree → delete the branch**. A branch still referenced by a worktree cannot be deleted; before running `git worktree remove`, `cd` back to the main repository.
 - Clean up only worktrees **you created**; do not touch client-created ones. Discarding requires typed confirmation. Do not force-push unless explicitly asked.
