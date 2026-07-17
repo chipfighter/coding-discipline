@@ -31,50 +31,30 @@ small. When a risk trigger matches, the corresponding skill stays firm.
 8 skills + 2 hooks. Install once, apply globally. Supports Claude Code and
 Codex.
 
-<!-- TODO(demo): record two ~30s clips and replace this comment block via the
-github.com editor (drag the .mp4 files in; GitHub hosts them).
-
-## Quiet by default, firm when it matters
-
-Scene 1 — a routine edit: no skill fires, the change just happens.
-Scene 2 — "done" is claimed without evidence: verify-before-done blocks the
-claim until tests actually run.
--->
-
 ## Why this exists
 
-The surrounding tools solve different layers:
+[Superpowers](https://github.com/obra/superpowers) proved that engineering
+discipline can live in agent skills — this plugin even reuses its
+cross-platform hook pattern (see Credits). But Superpowers is a complete
+workflow: its bootstrap asks the agent to route every response, even a
+clarifying question, through the skill system first.
 
-| project | primary role |
-|---|---|
-| [Superpowers](https://github.com/obra/superpowers) | a complete software-development methodology and agentic workflow |
-| [Spec Kit](https://github.com/github/spec-kit) / [OpenSpec](https://github.com/Fission-AI/OpenSpec) | an explicit spec-driven workflow and artifact lifecycle |
-| **coding-discipline** | a small guardrail layer that preserves intent and blocks risky shortcuts without taking over the workflow |
+coding-discipline starts from the opposite default. Skills stay dormant until
+a named failure mode is at risk; routine work runs untouched. The fixed
+context injected per session is ~1.2k tokens and cannot silently grow — a CI
+test fails when it does. Measured with symmetric rules, a workflow
+framework's fixed injection is about the same size; the cost that actually
+differs is how often a plugin inserts itself, and what it spawns when it
+does. [Measure both yourself](experiments/context-measure/measure_fixed_context.py).
 
-Use it when you want more discipline than a bare coding agent, but do not want
-another orchestration layer.
+On top of the guardrails, this project adds a piece of its own: the spec
+layer. spec-sync writes confirmed goals, non-goals, hard constraints, and
+acceptance criteria back into the docs the project already has — no
+proposal → approve → archive lifecycle, no new artifacts — so the next
+session does not rebuild a target you already rejected.
 
-### Fixed cost, measured
-
-The fixed per-session context cost of this layer is about the same as a full
-workflow framework — we measured both and publish the script:
-
-| fixed injection per session (measured 2026-07-17) | coding-discipline (main) | superpowers v6.1.1 |
-|---|---|---|
-| SessionStart hook payload | 1,474 chars | 3,277 chars |
-| skill metadata (names + descriptions) | 3,392 chars (8 skills) | 2,279 chars (14 skills) |
-| **total** | **4,866 chars (~1.2k tokens)** | **5,556 chars (~1.4k tokens)** |
-
-Both plugins are measured with the same rules: everything the SessionStart
-hook injects, plus the skill metadata the host loads for routing. Skill
-bodies are excluded on both sides — they load only on trigger. Reproduce with
-[experiments/context-measure/measure_fixed_context.py](experiments/context-measure/measure_fixed_context.py).
-
-So the difference is not startup tokens; it is intervention frequency. A
-workflow framework routes every conversation through its process —
-brainstorming, plan documents, subagent dispatch, review loops.
-coding-discipline stays out of the way until a named failure mode is at risk,
-and even then it adds no subagents, no plan files, no new artifacts.
+Use it when you want more discipline than a bare coding agent, but do not
+want another orchestration layer.
 
 ## Install
 
