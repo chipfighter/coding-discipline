@@ -1,21 +1,21 @@
 ---
-name: 路由反馈（误触发 / 漏触发）
-about: 某个 skill 在不该触发时触发了，或该触发时没触发
+name: Routing feedback (false trigger / missed trigger)
+about: A skill triggered when it should not have, or failed to trigger when it should
 labels: routing
 ---
 
-**类型**（留一个）：误触发（不该触发却触发了）/ 漏触发（该触发却没触发）
+**Type** (keep one): false trigger / missed trigger
 
-**涉及的 skill**：
+**Skill involved**:
 
-**任务原话**（当时发给助手的话，尽量原样贴）：
+**Original task prompt** (paste it as closely as possible):
 
-**期望行为**：
+**Expected behavior**:
 
-**实际行为**：
+**Actual behavior**:
 
-**模型**：
+**Model**:
 
-**harness**：Claude Code / Codex / 其它
+**Harness**: Claude Code / Codex / other
 
-**是否显式调用过 skill**：是 / 否
+**Was the skill invoked explicitly?**: yes / no

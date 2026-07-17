@@ -6,8 +6,8 @@ PLUGIN_ROOT="${ROOT}/plugins/coding-discipline"
 HOOK="${PLUGIN_ROOT}/hooks/session-start-skills"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/coding-discipline-tests.XXXXXX")"
 
-# 候选解释器要真跑一下才算数——Windows 上 Microsoft Store 的 python3.exe
-# 假 stub 能通过 command -v，但一执行就退出 49。
+# A candidate interpreter must actually run. On Windows, the Microsoft Store
+# python3.exe stub passes command -v but exits 49 when invoked.
 PYTHON=
 for cand in python3 python; do
   if "$cand" -c '' >/dev/null 2>&1; then PYTHON="$cand"; break; fi
@@ -56,6 +56,8 @@ output="$({
 printf '%s\n' "$output" | assert_json_output
 [ -f "${repo_codex}/AGENTS.md" ] || fail 'Codex did not create AGENTS.md'
 [ ! -e "${repo_codex}/CLAUDE.md" ] || fail 'Codex created CLAUDE.md'
+grep -q '^# Project guide$' "${repo_codex}/AGENTS.md" \
+  || fail 'Codex did not seed the English project guide'
 grep -q '"platform":"codex"' "${TMP_ROOT}/usage-codex.jsonl" \
   || fail 'Codex usage record has the wrong platform'
 
@@ -107,6 +109,8 @@ make_repo "$repo_claude"
 )
 [ -f "${repo_claude}/CLAUDE.md" ] || fail 'Claude Code did not create CLAUDE.md'
 [ ! -e "${repo_claude}/AGENTS.md" ] || fail 'Claude Code created AGENTS.md'
+grep -q '^# Project guide$' "${repo_claude}/CLAUDE.md" \
+  || fail 'Claude Code did not seed the English project guide'
 
 # Both optional side effects can be disabled.
 repo_opt_out="${TMP_ROOT}/repo-opt-out"

@@ -1,34 +1,34 @@
 ---
 name: verify-before-done
-description: 宣称"做好了/修好了/测试过了/能跑"之前用，提交、建 PR 或 MR 之前也用——任何任务都不例外。只认最后一次相关改动后拿到、且刚好能证明结论的证据；小改别过度验证。
+description: Use before claiming "done", "fixed", "tested", or "it runs", and before committing or opening a PR or MR—no task is exempt. Accept only evidence gathered after the last relevant change and just sufficient to prove the claim; do not over-verify small changes.
 ---
 
-硬规则：**只有在代码、文件或环境最后一次相关改动之后拿到，而且刚好能证明结论的证据，才算数。**
-- 证据不够却说完成 = 撒谎；改个错别字却跑全量测试 = 浪费。
-- 可以复用刚才拿到的证据，但要说明什么时候拿到，并确认之后没再改代码、没 pull、没动环境。说不清或拿不准，就重新检查。
+Hard rule: **Only evidence gathered after the last relevant change to the code, files, or environment, and directly sufficient to prove the claim, counts.**
+- Claiming completion without sufficient evidence = lying; running the full test suite for a typo = waste.
+- You may reuse evidence just gathered, but state when it was gathered and confirm that no code was changed, nothing was pulled, and the environment was not modified afterward. If you cannot say for sure, check again.
 
-## 闸门（下任何"成功/完成"结论前）
-1. 你要证明哪句话？哪种检查刚好够（命令输出 / diff / 产物检查……）？
-2. 证据是在最后一次相关改动后拿到的吗？是——说明什么时候拿到；不是 / 拿不准——**重新检查**。
-3. 跑了命令：读完输出、看退出码、数失败项。检查了 diff 或产物：说清看了什么、结果是什么。
-4. 证据真的能证明这句话吗？能——结论连证据一起说；不能——按真实状态说。
+## Gate (before any claim of success or completion)
+1. What claim must be proven? What check is just sufficient (command output / diff / artifact inspection…)?
+2. Was the evidence gathered after the last relevant change? Yes—state when. No / uncertain—**check again**.
+3. If you ran a command, read all output, inspect the exit code, and count failures. If you inspected a diff or artifact, state what you checked and the result.
+4. Does the evidence actually prove the claim? Yes—state the conclusion together with the evidence. No—report the true status.
 
-跳过任何一步 = 撒谎，不是验证。
+Skipping any step = lying, not verification.
 
-## 跑不了 ≠ 跳过
-命令跑不起来（环境缺、依赖坏、超时）就是**验证失败**，照实报"没验证成"和被什么挡住。不许当"这步略过"悄悄绿过去，也不许把环境问题说成"功能挂了"。
+## Could not run ≠ skipped
+If a command cannot run (missing environment, broken dependencies, timeout), **verification failed**. Report that verification could not be completed and what blocked it. Do not quietly mark the step green as “skipped,” and do not misreport an environment problem as a product failure.
 
-## 这些都不算"验证过"
-| 想拿它当"过了" | 为什么不算 |
+## None of these counts as "verified"
+| Claimed evidence | Why it does not count |
 |---|---|
-| lint / 类型检查过了 | 只证明能过检查，没证明能编译、能跑、功能对。 |
-| 子 agent 报告"成功了" | 那是它说的。自己去看 diff / 实际产物核对。 |
-| 回归测试"跑一次就过" | 没证明它能捕获问题：用安全的隔离方式暂时禁用本轮修复 → 必须挂 → 恢复 → 过。别用回退/覆盖用户文件的方式做这一步。 |
-| "测试绿了 = 需求达成" | 需求要逐条对着勾，不是测试绿就算完。 |
-| 只跑了一部分 | 不等于全过。 |
+| lint / type checks passed | This proves only that the checks pass, not that the project builds, runs, or behaves correctly. |
+| A subagent reported "success" | That is its claim. Inspect the diff / actual artifact yourself. |
+| The regression test passed once | This does not prove it catches the problem. In a safe, isolated way, temporarily disable this round's fix → the test must fail → restore the fix → the test must pass. Do not do this by reverting or overwriting user files. |
+| "Tests are green = requirements are met" | Check each requirement explicitly; green tests alone are not enough. |
+| Only part of the suite ran | This does not mean the whole suite passed. |
 
-## 红线
-- 不准用"应该""大概""看起来对"代替证据。
-- 没拿到证据前不准庆祝（"好了！""搞定！""完美！"）。
-- 改了要紧东西想直接 commit / push / 提 PR 或 MR 前，先过上面的闸门。
-- 本轮若有已确认、会使当前真源失实的变化，或工作要跨 session 却还没有真源——宣称可交接前先用 spec-sync 处理；用户明确拒绝持久化，就说明后果、服从最新指令。
+## Red lines
+- Do not substitute "should", "probably", or "looks right" for evidence.
+- Do not celebrate ("Done!" / "Fixed!" / "Perfect!") before obtaining evidence.
+- Before committing, pushing, or opening a PR or MR after an important change, pass the gate above.
+- If this work includes a confirmed change that makes the current source of truth inaccurate, or the work spans sessions but still lacks a source of truth, use spec-sync before claiming it is ready for handoff. If the user explicitly refuses persistence, explain the consequence and follow their latest instruction.

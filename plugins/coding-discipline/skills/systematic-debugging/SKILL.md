@@ -1,39 +1,39 @@
 ---
 name: systematic-debugging
-description: 碰到根因不明的 bug、测试失败或非预期行为时用，在提出永久修复之前——症状离根因有距离、修过一次没修好、或问题跨组件，必须走。先复现、反向追到根因、在根上修一处、补回归测试；紧急止血只能做可回退的临时缓解，并明确说明还没根治。不触发于：报错已直指原因的明显错误（语法/拼写/漏 import），直接修。
+description: Use before proposing a permanent fix for bugs, test failures, or unexpected behavior with an unknown root cause—mandatory when symptoms are far from the cause, a prior fix failed, or the issue crosses components. Reproduce, trace backward to the root cause, fix once at the source, and add a regression test. Emergency containment must be a reversible temporary mitigation explicitly identified as not a root-cause fix. Do not trigger for obvious errors whose message identifies the cause (syntax/typo/missing import); fix those directly.
 ---
 
-铁律：**没定位到根因之前，不把猜测包装成永久修复。** 若用户明确需要紧急止血，可以先做可回退的临时缓解，但必须说明风险和「还没根治」，并继续追根因。
+Iron law: **do not package a guess as a permanent fix before locating the root cause.** If the user explicitly needs emergency containment, you may apply a reversible temporary mitigation first, but you must state its risks and that the root cause is not fixed, then continue investigating.
 
-## 1. 复现
-- 仔细读错误信息和完整堆栈——常常答案就在里面，别跳过。记下行号/文件/错误码。
-- 先稳定复现：什么步骤每次都能触发？不能稳定复现就先搜集数据，**别靠猜**。
-- 看最近改了啥：git diff、最近 commit、新依赖、配置/环境差异。
+## 1. Reproduce
+- Read the error message and full stack trace carefully—the answer is often there. Do not skip them. Note the line number, file, and error code.
+- Establish a reliable reproduction first: which steps trigger it every time? If you cannot reproduce it reliably, gather data before proceeding. **Do not guess.**
+- Inspect recent changes: git diff, recent commits, new dependencies, and configuration or environment differences.
 
-## 2. 反向追根因
-- 顺着坏值往回追：这个坏值从哪来 → 谁拿坏值调的 → 一路追到源头。**在源头修，不在症状处修。**
-- 多组件系统（CI→构建→签名，API→服务→库）：在每个边界记一下"进什么/出什么"，跑一次看在**哪一层**断的，再钻那一层。别凭感觉猜是哪层。
-- 找一段类似但能跑的对照，逐条列出和坏的那段的差异——别假设"这点不可能有关系"。
-- 举个例子：页面显示的金额多了两位小数。往回追：显示层拿到的就是错值 → 它是从 API 拿的 → API 从库里读出来是对的 → 是 API 把「分」当「元」返回了。**在 API 那层修，别在显示层格式化时凑。**
+## 2. Trace backward to the root cause
+- Follow the bad value backward: where did it come from → who called something with it → continue to the source. **Fix it at the source, not at the symptom.**
+- In a multi-component system (CI→build→signing, API→service→library), record what enters and leaves each boundary. Run it once to see **which layer** fails, then investigate that layer. Do not guess based on intuition.
+- Find a similar working example and list every difference from the broken one. Do not assume that "this difference cannot matter."
+- Example: an amount on a page has two extra decimal places. Trace it backward: the display layer receives the wrong value → it came from the API → the value read from the database is correct → the API returned cents as dollars. **Fix the API layer; do not compensate with display formatting.**
 
-## 3. 一次一个假设
-- 写下来："我认为根因是 X，因为 Y"。
-- 用**最小**改动验证，一次只动一个变量。没验证就别往上叠新的修。
-- 不懂就说"我不懂 X"，别装懂硬猜。
+## 3. One hypothesis at a time
+- Write it down: "I believe the root cause is X because Y."
+- Test it with the **smallest** change, varying only one thing at a time. Do not stack new fixes on an unverified one.
+- If you do not understand X, say so. Do not pretend and guess.
 
-## 4. 根上修 + 回归测试
-- 先写一个复现该 bug 的失败测试，再修（见 tdd）。
-- 一次只上**一处**修，不"既然来了顺手"重构或改别的。
-- 验证：测试过了 + 没弄坏别的 + 问题真没了（见 verify-before-done）。
+## 4. Fix the root + add a regression test
+- Write a failing test that reproduces the bug before fixing it (see tdd).
+- Make **one** fix in one place. Do not opportunistically refactor or change anything else.
+- Verify that the test passes, nothing else broke, and the problem is actually gone (see verify-before-done).
 
-## 修了 3 次还不好 = 停，质疑架构
-每次修都在别处冒出新问题、或都要"大重构"才能修——这不是假设错了，是架构错了。**别试第 4 次**，停下来找人讨论：这个设计是不是根上就不对。
+## Three failed fixes = stop and question the architecture
+If every fix creates a new problem elsewhere or requires a "large refactor," the problem is not the hypothesis but the architecture. **Do not attempt a fourth fix.** Stop and discuss whether the design itself is fundamentally wrong.
 
-## 禁瞎试：这些念头一冒就停，回第 1 步
-| 冒出来的念头 | 该做的 |
+## No random attempts: when these thoughts appear, stop and return to Step 1
+| Thought | What to do |
 |---|---|
-| 「先快修，回头再查根因」 | 没有回头——症状一改你就不查了。先追到根因再动手。 |
-| 「改改这里看行不行」 | 那是猜。先写下「我认为根因是 X，因为 Y」，再用最小改动验证。 |
-| 「大概就是 X，直接修」 | 还没追数据流就下结论 = 赌。先把坏值追到源头。 |
-| 「几个改动一起塞进去跑」 | 一次只动一个变量，不然过了也不知道是哪个起的作用。 |
-| 「试了两次了，再试一次说不定就成」 | 停。第 3 次多半是方向错，回第 1 步、或找人。 |
+| "Apply a quick fix now and investigate the root cause later." | There is no later—once the symptom changes, you will stop investigating. Trace it to the root cause before changing anything. |
+| "Change this and see whether it works." | That is guessing. First write, "I believe the root cause is X because Y," then test it with the smallest change. |
+| "It is probably X; just fix it." | Reaching a conclusion before tracing the data flow is a gamble. Follow the bad value to its source first. |
+| "Put several changes in and run it." | Change only one variable at a time, or a passing result will not tell you which change mattered. |
+| "Two attempts failed; maybe one more will work." | Stop. A third attempt probably means the direction is wrong. Return to Step 1 or ask someone else. |

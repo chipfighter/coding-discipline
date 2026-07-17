@@ -1,25 +1,25 @@
 ---
 name: context-hygiene
-description: 开始项目、读项目文档或历史，或几份文档互相冲突时用。当前状态只看项目指定的最新文档；不主动读归档；不另抄 spec；长期记忆只记仓库没有的环境、人员和偏好。
+description: Use when starting a project, reading project documentation or history, or resolving conflicts between documents. For current state, read only the latest documents designated by the project; do not proactively read archives; do not duplicate the spec; use long-term memory only for environment, people, and preferences not recorded in the repository.
 ---
 
-旧文档可以用来追历史，但不能当成当前事实。模型很容易被写得最多的旧说法带偏，而不是找到最新、正确的说法。项目引导文档（Codex 的 `AGENTS.md` / Claude Code 的 `CLAUDE.md`）若指定了当前状态文档和归档位置，就按它来。
+Old documents can trace history, but they are not current facts. Models easily follow the most extensively documented old account instead of finding the latest, correct one. If the project guide document (Codex's `AGENTS.md` / Claude Code's `CLAUDE.md`) designates a current-state document and archive location, follow it.
 
-## 读什么·不读什么
-1. **当前状态只看项目指定的最新文档**（如 `CHANGELOG.md` 顶部 / 某个 STATUS 文档），不拿旧版本快照当现状。
-2. **不主动读归档、或标了 `superseded` / 已弃用的文档**。确实要查历史时，用检索定位到相关段落再读，不要通读整个归档。
-3. 几份文档互相冲突时，先按项目指定的最新状态文档处理；仍不清楚就问用户。不要自己挑一份，更别把归档当现状。
+## What to read—and what not to read
+1. **For current state, read only the latest document designated by the project** (such as the top of `CHANGELOG.md` or a STATUS document). Do not treat an old version snapshot as current.
+2. **Do not proactively read archives or documents marked `superseded` / deprecated.** When history is genuinely needed, search for and read the relevant passage rather than reading the entire archive.
+3. When documents conflict, first follow the project's designated latest state document; if it is still unclear, ask the user. Do not choose one yourself, and never treat an archive as current.
 
-## 别再抄一套说明
-4. 设计应指向已有的项目引导文档 / 架构决策记录（ADR）/ 当前状态文档，不要另抄一套 spec——副本迟早会过期。
-5. **「为什么走这条路」转向时重写、不追加**：旧理由留着会被反复复读、把方向带偏。
-6. **memory 只记仓库里找不到的事**（环境 / 人员 / 偏好 / 踩过的坑）；项目进度看当前状态文档，为什么这样设计写进架构决策记录（ADR）。过期就删，不再归档一份。
+## Do not copy another set of instructions
+4. Point design work to the existing project guide document / architecture decision record (ADR) / current-state document instead of copying another spec—the copy will eventually go stale.
+5. **When the reason for a direction changes, rewrite it; do not append:** retaining the old rationale invites it to be repeated and pull the work in the wrong direction.
+6. **Use memory only for facts unavailable in the repository** (environment / people / preferences / lessons from past pitfalls). Read project progress from the current-state document, and record design rationale in an architecture decision record (ADR). Delete stale memory; do not archive another copy.
 
-## 项目引导文档是「长出来的」，不是开局写死的
-项目根的 `AGENTS.md`（Codex）或 `CLAUDE.md`（Claude Code）没有时，插件第一次进入仓库会放对应的空骨架。它靠往后**确认一件、记一行**长大：
-- 只写「已经和用户拍板、而且光看代码看不出来」的事（技术选型 / 硬边界 / 完成标准）；讨论中、还没定的不写——开局写满会让后续 session 把猜测当事实。
-- 每次这种事敲定，主动问一句「记进项目引导文档吗」，得到同意再写，一次一行。
-- 原来记的后来变了，改那一行，别在下面另起一条打架的（同上面「转向时重写、不追加」那条）。
+## Project guide documents grow over time; they are not filled in up front
+When the project root has no `AGENTS.md` (Codex) or `CLAUDE.md` (Claude Code), the plugin places the corresponding empty skeleton there the first time it enters the repository. It grows by **confirming one thing and recording one line**:
+- Record only things already agreed with the user and not apparent from the code (technology choices / hard boundaries / definition of done). Do not record matters still under discussion or unsettled—filling the guide up front makes later sessions treat guesses as facts.
+- Whenever such a decision is finalized, proactively ask, “Should I record this in the project guide document?” Write it only after approval, one line at a time.
+- If a recorded decision later changes, edit that line; do not add a conflicting line below it (the same “rewrite, do not append” rule above).
 
-## 文档作废时
-标明 `status: 已被 XX 取代`，移进归档，再用一条架构决策记录（ADR）写清为什么弃用——免得后续 session 又把废掉的主意捡回来重做。
+## When a document becomes obsolete
+Mark it `status: superseded by XX`, move it to the archive, and use an architecture decision record (ADR) to explain why it was abandoned—so a later session does not revive and rebuild a discarded idea.

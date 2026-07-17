@@ -1,41 +1,42 @@
 #!/usr/bin/env bash
-# 汇总用量。数据由 SessionStart（会话激活·各平台）与 PostToolUse(Skill)（按 skill·Claude Code）写入。无 jq。
-# 用法：
-#   bash skills-count.sh            # 全部
-#   bash skills-count.sh <关键词>   # 只看整行含关键词的记录（cwd 在其中，如 HuiNeng）
+# Summarize usage written by SessionStart (session activations on every host)
+# and PostToolUse(Skill) (per-skill activity on Claude Code). No jq required.
+# Usage:
+#   bash skills-count.sh            # all records
+#   bash skills-count.sh <keyword>  # records whose full line contains keyword
 PATH="/usr/bin:/mingw64/bin:${PATH:-}"
 export PATH
 set -euo pipefail
 
 LOG="${CD_USAGE_LOG:-$HOME/.coding-discipline/usage.jsonl}"
-[ -f "$LOG" ] || { echo "还没有用量记录（$LOG 不存在）。"; exit 0; }
+[ -f "$LOG" ] || { echo "No usage records yet ($LOG does not exist)."; exit 0; }
 
 filter="${1:-}"
 if [ -n "$filter" ]; then
   data="$(grep -F "$filter" "$LOG" || true)"
-  echo "== 用量（仅含 '$filter' 的记录）=="
+  echo "== Usage (records containing '$filter') =="
 else
   data="$(cat "$LOG")"
-  echo "== 用量（全部）=="
+  echo "== Usage (all records) =="
 fi
-[ -n "$data" ] || { echo "（无匹配记录）"; exit 0; }
+[ -n "$data" ] || { echo "(No matching records.)"; exit 0; }
 
 field() { grep -o "\"$1\":\"[^\"]*\"" | sed -E 's/.*:"([^"]*)"/\1/'; }
 
 echo ""
-echo "-- 会话激活次数（按平台 · 各平台通用）--"
+echo "-- Session activations by host --"
 sess="$(printf '%s\n' "$data" | grep '"event":"session"' || true)"
 if [ -n "$sess" ]; then printf '%s\n' "$sess" | field platform | sort | uniq -c | sort -rn
-else echo "（暂无）"; fi
+else echo "(None yet.)"; fi
 
 echo ""
-echo "-- skill 调用次数（Claude Code · 按 skill）--"
+echo "-- Skill invocations by skill (Claude Code only) --"
 sk="$(printf '%s\n' "$data" | grep '"event":"skill"' || true)"
 if [ -n "$sk" ]; then printf '%s\n' "$sk" | field skill | sort | uniq -c | sort -rn
-else echo "（暂无——只有 Claude Code 会产生按-skill 明细）"; fi
+else echo "(None yet; only Claude Code exposes per-skill activity.)"; fi
 
 echo ""
 total="$(printf '%s\n' "$data" | grep -c '' || true)"
 first="$(printf '%s\n' "$data" | head -1 | field ts)"
 last="$(printf '%s\n' "$data" | tail -1 | field ts)"
-echo "总记录 ${total} 条；最早 ${first}；最近 ${last}"
+echo "${total} total records; first ${first}; latest ${last}"

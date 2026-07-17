@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
-  "version": "0.7.0",
-  "description": "给 AI 编程助手的双层护栏：spec 同步（spec-sync 防跨 session 目标漂移）+ 编程纪律 skill——需求多解先对齐 / 可测行为 TDD / 系统化调试 / 优先级评审 / 证据式验证 / 规矩的 git 流程 / 上下文防毒。条件命中才触发、触发后不讲价。全中文、跨 AI 编程助手通用。",
+  "version": "0.8.0",
+  "description": "Workflow-agnostic guardrails for AI coding agents: spec sync preserves confirmed intent across sessions, while risk-triggered skills enforce design alignment, TDD, root-cause debugging, prioritized review, evidence-before-done, disciplined git, and context hygiene.",
   "author": {
     "name": "chipfighter"
   },
@@ -18,14 +18,18 @@
     "git",
     "workflow",
     "brainstorming",
-    "chinese"
+    "guardrails",
+    "spec-sync",
+    "spec-driven-development",
+    "context-engineering",
+    "agent-skills"
   ],
   "skills": "./skills/",
   "hooks": "./hooks/hooks-codex.json",
   "interface": {
     "displayName": "Coding Discipline",
-    "shortDescription": "给 AI 编程助手的双层护栏：spec 同步 + 编程纪律 skill（中文）",
-    "longDescription": "拍板的目标、边界、验收同步回当前 spec（防跨 session 漂移），加上：需求多解先对齐、可测行为先写测试、先找根因、按优先级评审、证据式验证、规矩地走 git 流程、不被过期文档带偏——触发条件写在每条 skill 的 description 里，命中才介入，skill 内只留模型不知道的硬纪律。",
+    "shortDescription": "Spec sync + risk-triggered discipline for coding agents",
+    "longDescription": "Keep confirmed goals, boundaries, and acceptance criteria synchronized with the current spec, then apply firm engineering discipline only when the risk justifies it: align ambiguous requirements, test testable behavior first, find root causes, review by priority, verify before claiming done, use disciplined git flow, and avoid stale-context drift. It adds guardrails without taking over planning, subagents, worktrees, or the development workflow.",
     "developerName": "chipfighter",
     "category": "Coding",
     "capabilities": [
@@ -34,9 +38,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "用 coding-discipline 帮我先对齐方案，再实现这个功能。",
-      "用 systematic-debugging 定位这个问题的根因。",
-      "用 code-review 和 verify-before-done 检查这次改动。"
+      "Use coding-discipline to align the design before implementing this feature.",
+      "Use systematic-debugging to find the root cause of this problem.",
+      "Use code-review and verify-before-done to inspect this change."
     ],
     "websiteURL": "https://github.com/chipfighter/coding-discipline"
   }

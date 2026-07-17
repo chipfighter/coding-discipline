@@ -1,25 +1,25 @@
 ---
 name: brainstorming
-description: 动手写代码之前，需求有多种合理理解、有多个方案要取舍、或改错代价高（权限/支付/数据迁移/对外接口/数据结构/难回退改动）时用。先一个个问题问清需求和设计，拿到批准再实现。不触发于：目标和改法都明确的单点小改、机械改动（文案/常量/配置值）。
+description: Use before coding when requirements have multiple reasonable interpretations, approaches require tradeoffs, or mistakes would be costly (permissions/payments/data migration/public APIs/data structures/hard-to-revert changes). Clarify requirements and design one question at a time, then get approval before implementation. Do not trigger for a focused small change with a clear goal and approach, or for mechanical edits (copy/constants/config values).
 ---
 
-**硬门：拿到方案批准前，不写任何代码。** 触发了本 skill 就走完——方案可以就几句话，但必须先讲清、先点头。中途觉得「其实很简单」不是退出理由："简单"往往是没说破的假设。
+**Hard gate: write no code until the design is approved.** Once this skill triggers, follow it through—the design may be only a few sentences, but it must be explained and approved first. Deciding midway that it is "actually simple" is not a reason to exit: "simple" often means unstated assumptions.
 
-## 想跳过设计时冒出来的借口
-| 你会对自己说 | 现实 |
+## Excuses that surface when you want to skip design
+| What you tell yourself | Reality |
 |---|---|
-| 「这需求太简单，不用设计」 | 「简单」是你没说破的假设，最坑。简单方案几句话就够，但得先说清、先点头。 |
-| 「边做边想更快」 | 拿着没对齐的理解开干，返工更慢。先把方向对齐再动手。 |
-| 「用户大概想要 X 吧」 | 别替用户拍板。一次问一个问题问清，能给选项就给选项。 |
+| "This is too simple to need design." | "Simple" means unstated assumptions, which are the most dangerous. A simple design may take only a few sentences, but it still needs to be explained and approved. |
+| "It will be faster to think while building." | Starting from a misaligned understanding makes rework slower. Align on the direction before acting. |
+| "The user probably wants X." | Do not decide for the user. Clarify one question at a time, and offer choices when possible. |
 
-## 流程
-1. **先看上下文**：相关文件、文档、最近 commit，别凭空设计。
-2. **一次只问一个问题**问清：目的、约束、成功标准。能给选项就给选项（比开放题好答）。一条消息只放一个问题。
-3. **事情太大先拆**：发现这其实是好几个独立子系统，先喊停帮着拆成子项目、定先后，别急着细化一个该拆的大坨。
-4. **给 2-3 个方案带取舍**：把你**推荐**的放最前、讲清为什么，再列备选和各自代价。
-5. **分段呈现设计、每段确认**：每块按复杂度该长则长、该短则短，讲完一段问一句"这样对吗"再往下。
-6. **删掉暂时用不上的功能（YAGNI）**：当前用不到就不设计。
+## Process
+1. **Inspect the context first**: relevant files, documentation, and recent commits. Do not design in a vacuum.
+2. **Ask one question at a time** to clarify the goal, constraints, and success criteria. Offer choices when possible; they are easier to answer than open-ended questions. Put only one question in each message.
+3. **Split up work that is too large**: if it is really several independent subsystems, stop and help divide it into subprojects and prioritize them before detailing a large task that should be broken apart.
+4. **Present 2–3 approaches with tradeoffs**: put your **recommended** option first and explain why, then list the alternatives and their costs.
+5. **Present the design in sections and confirm each one**: make each section as long or short as its complexity warrants. After each section, ask "Does this look right?" before continuing.
+6. **Remove features that are not needed yet (YAGNI)**: if it is not needed now, do not design it.
 
-## 批准之后
-方案点头了，才进入实现。中途哪里讲不通，随时退回来重新问清。
-方案里若敲定了「长期成立、光看代码看不出来」的项目决定（技术选型 / 硬边界 / 完成标准），顺手问一句要不要记进项目引导文档（Codex 用 `AGENTS.md`，Claude Code 用 `CLAUDE.md`；怎么记见 context-hygiene）。本轮批准的结果或验收要跨 session 生效的，再问一句要不要建立或更新当前 spec，交给 spec-sync 处理。
+## After approval
+Begin implementation only after the design is approved. If any part stops making sense along the way, return and clarify it.
+If the design establishes a durable project decision that cannot be inferred from the code (a technology choice / hard boundary / definition of done), ask whether to record it in the project guide (`AGENTS.md` for Codex, `CLAUDE.md` for Claude Code; see context-hygiene for how). If an approved outcome or acceptance criterion from this session must persist across sessions, also ask whether to create or update the current spec, then hand that work to spec-sync.

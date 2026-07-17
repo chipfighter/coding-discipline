@@ -1,36 +1,36 @@
 ---
 name: spec-sync
-description: 跨 session 工作中，用户已确认的结果、非目标、硬约束或验收没有写回当前真源（spec），或现实已与其冲突到继续照做会做错时用；收尾、交接时该有真源却没有也用。只改受影响原句，不另存新旧两套。不触发于：单 session 可闭环、局部实现细节、按既有验收验证、寻找真源或普通文档编辑。
+description: Use in cross-session work when user-confirmed outcomes, non-goals, hard constraints, or acceptance criteria have not been written back to the current source of truth (spec), or reality conflicts with it enough that following it would be wrong; also use during wrap-up or handoff when a source of truth should exist but does not. Edit only the affected original wording; do not keep separate old and new versions. Do not trigger for work that can be completed within one session, local implementation details, verification against existing acceptance criteria, locating the source of truth, or ordinary documentation edits.
 ---
 
-铁律：**对话里拍板的变化，不能只留在对话里。** 用户已确认、会影响后续协作或验收的意图，本 session 不写回真源，下一个 session 连「用户改过主意」都看不见——没落盘的意图救不回来。
+Iron rule: **A change confirmed in conversation must not remain only in the conversation.** If user-confirmed intent that affects future collaboration or acceptance is not written back to the source of truth in this session, the next session cannot even see that the user changed their mind—intent that was never persisted cannot be recovered.
 
-## 判断核心（要不要同步，只看这条）
-> 若下一个 session 或另一个 agent 只读取当前真源，会因此继续做出用户已经否定的结果、违反新约束，或按过期标准判断完成——这次变化就必须同步。
+## The decision test (the only test for whether to sync)
+> If the next session or another agent read only the current source of truth, would it continue toward an outcome the user has rejected, violate a new constraint, or judge completion against stale criteria? If so, the change must be synced.
 
-- 只有用户**已经确认**的变化才够格写进 spec；自己的推断、还在讨论的想法都不算。
-- 判断前最多把当前真源读一遍对一下，别展开成调研。
+- Only changes the user has **already confirmed** belong in the spec; your own inferences and ideas still under discussion do not.
+- Before deciding, read the current source of truth at most once to compare. Do not turn this into research.
 
-## 写回的规矩
-1. 先用项目已指定的当前真源（引导文档指着哪份就是哪份）。
-2. 没有指定真源：把已有 Issue / PRD / ADR / 状态文档指定为当前 spec，**不复制第二份**；候选有多个或不明显，让用户挑。
-3. 什么都没有、而工作确实跨 session / 多人共享 / 改错代价高：问用户要不要建一份最小 spec（见下）；建不建由用户拍板，单 session 能闭环的不建。
-4. 指定或新建之后，把真源指针写进项目引导文档（CLAUDE.md / AGENTS.md 的「当前最新状态看哪份文档」一类入口）——**只写指针、不抄正文**，下一个 session 才找得到。
-5. **只改受影响的原句**：不追加「旧决定 / 新决定」两套、不重排、不顺手润色全文；方向大改才整体替换，历史交给 Git。
-6. 不记录执行进度、下一步、验证证据——那些归 harness / Git / CI，不进 spec。
-7. 多人 / 多 agent 协作：worker 默认只读，spec 由主 agent 或负责人维护。
+## Write-back rules
+1. Use the current source of truth already designated by the project—the document named by the project guide.
+2. If none is designated, designate an existing Issue / PRD / ADR / status document as the current spec; **do not copy it into a second document**. If there are multiple candidates or none is obvious, ask the user to choose.
+3. If nothing exists and the work genuinely spans sessions, is shared by multiple people, or would be costly to get wrong, ask whether the user wants a minimal spec (below). The user decides whether to create one; do not create one for work that can be completed within a single session.
+4. After designating or creating one, put a pointer to the source of truth in the project guide document (the “where to find the current state” entry in `CLAUDE.md` / `AGENTS.md`)—**write only the pointer, not a copy of the content**—so the next session can find it.
+5. **Edit only the affected original wording**: do not append separate “old decision / new decision” versions, reorder the document, or polish the whole document along the way. Replace the affected text as a whole only when the direction changes substantially; leave history to Git.
+6. Do not record execution progress, next steps, or verification evidence. Those belong to the harness / Git / CI, not the spec.
+7. In multi-person / multi-agent work, workers are read-only by default; the primary agent or owner maintains the spec.
 
-## 最小 spec（五项，够用就别加栏）
-当前要得到的结果；明确的非目标；硬约束；本轮验收标准；已确认未决且会阻塞安全执行的问题（仅用户确认过才写，别把自己的猜测升级成已定事实）。
+## Minimal spec (five items—add no more than needed)
+The current desired outcome; explicit non-goals; hard constraints; acceptance criteria for this work; confirmed unresolved questions that would block safe execution (include only questions the user has confirmed—do not promote your guesses into settled facts).
 
-## 例外（这两种情况不硬来）
-- **真源没有写权限**（比如别人管的 PRD）：不越权改，明说哪里过期了、该由谁更新。
-- **用户明确拒绝写回**：说明下个 session 可能读到旧目标，然后服从——旧 spec 永远不能拿来阻拦用户的最新指令。
+## Exceptions (do not force either case)
+- **No write access to the source of truth** (for example, a PRD owned by someone else): do not overstep. State clearly what is stale and who should update it.
+- **The user explicitly refuses write-back**: explain that the next session may read the old target, then comply. An old spec must never be used to block the user's latest instruction.
 
-## 红线
-- 结果 / 非目标 / 硬约束 / 验收的变化，未经用户拍板不写进真源。
-- 实现验证过了、真源还没同步：两件事分开说清，不得宣称「真源已同步」「可以无损交接」。
-- 同步在**本 session 内**完成，不指望下一轮找回没落盘的意图。
+## Red lines
+- Do not write changes to outcomes / non-goals / hard constraints / acceptance criteria into the source of truth until the user has confirmed them.
+- If the implementation is verified but the source of truth is not synced, report those as two separate facts. Do not claim “the source of truth is synced” or “handoff will preserve everything.”
+- Complete the sync **within this session**. Do not expect a later session to recover intent that was never persisted.
 
-## 边界
-哪份文档是当前真源、怎么读——归 context-hygiene；按既有验收标准验证做没做完——归 verify-before-done。本 skill 只管一件事：**真源有没有跟上用户最新拍板。**
+## Boundary
+Which document is the current source of truth and how to read it belong to context-hygiene. Verifying completion against existing acceptance criteria belongs to verify-before-done. This skill governs one thing only: **whether the source of truth reflects the user's latest confirmed decisions.**

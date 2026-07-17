@@ -1,26 +1,37 @@
-# 本项目引导文档
+# Project guide
 
-> 这份文档由 coding-discipline 插件在第一次进入本项目时自动创建。
-> 它一开始几乎是空的，这是故意的——它不是开工前写好的说明书，
-> 而是随项目往前走、每确定一件事就补一行、慢慢长出来的。
+> The coding-discipline plugin created this file the first time it entered this
+> repository. It starts nearly empty on purpose: it is not a specification
+> written before the work begins. It grows one confirmed line at a time as the
+> project evolves.
 >
-> 往里写东西的规矩（和插件的 context-hygiene 一致）：
-> - 只写「已经和你拍板定了、而且光看代码看不出来」的事；讨论中、还没定的别写。
-> - 还没定的地方，就留着「（还没定）」这几个字。
-> - 原来写的事后来变了，改那一行，别在下面另起一条打架的。
-> - 等这几段都填得差不多了，可以把本段说明删掉。
+> Rules for maintaining it (aligned with `context-hygiene`):
+> - Record only decisions confirmed with the user that cannot be inferred from
+>   the code.
+> - Leave unresolved topics explicitly unresolved.
+> - When a decision changes, replace the old line instead of appending a
+>   conflicting history.
+> - Remove this introductory block once the sections below are established.
 
-## 当前最新状态看哪份文档
-（还没定 —— 例如 CHANGELOG.md 顶部、或 docs/STATUS.md；每个 session 只认这里指的那份，别信旧快照）
+## Current source of truth
 
-## 这项目是什么
-（还没定 —— 解决谁的什么问题、为什么走这条路）
+(Not decided — for example, the top of `CHANGELOG.md` or `docs/STATUS.md`.
+Every session should trust only the document named here, not old snapshots.)
 
-## 硬边界：绝不做什么
-（还没定）
+## What this project is
 
-## 技术栈 / 目录约定
-（还没定）
+(Not decided — whose problem it solves, what the problem is, and why this
+direction was chosen.)
 
-## 怎么算「做完」
-（还没定 —— 每个功能「完成」的可验证标准，防止过度加工）
+## Hard boundaries
+
+(Not decided.)
+
+## Stack and directory conventions
+
+(Not decided.)
+
+## Definition of done
+
+(Not decided — verifiable completion criteria for each feature, to prevent
+overbuilding.)

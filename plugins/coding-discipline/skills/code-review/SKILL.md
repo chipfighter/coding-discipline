@@ -1,23 +1,23 @@
 ---
 name: code-review
-description: 多个模块的配合会受影响、涉及高风险内容（权限/认证、支付/资金、数据删除/迁移、公共 API/跨服务接口、安全边界），或用户要求评审时用。评审先看「正确性→合需求→安全→简洁→风格」；收到意见先核实，不盲从、不表演式同意。用户没要求时，纯文档、明确配置值、机械改名不因 PR / 合并触发。
+description: Use when changes affect interactions across multiple modules, involve high-risk areas (authorization/authentication, payments/funds, data deletion/migration, public APIs/cross-service interfaces/security boundaries), or the user requests a review. Review in this order—correctness → requirements → security → simplicity → style. Verify feedback before acting; do not comply blindly or agree performatively. Unless the user asks, documentation-only changes, explicit config values, and mechanical renames do not trigger merely because of a PR or merge.
 ---
 
-## 做评审（自己审；任务值得且客户端支持时可派子 agent）
-需要独立视角、且当前客户端支持子 agent 时，可以派一个评审——给它**精心裁过的上下文**（改了啥、本该满足啥需求、diff 范围 base..head），别把整个 session 历史倒给它。小改动直接自己审，不为形式增加代理成本。
+## Performing a review (review it yourself; delegate when worthwhile and supported)
+When an independent perspective is needed and the current client supports subagents, you may delegate a review. Give the reviewer **carefully scoped context** (what changed, which requirements it should meet, and the base..head diff range), not the entire session history. Review small changes yourself; do not add agent overhead for appearances.
 
-按这个**优先级**看，高的没过就别纠结低的：
-1. **正确性**：逻辑对不对、边界/错误/并发有没有漏、会不会崩。
-2. **合需求**：逐条对着需求/方案勾，做的是不是要的、有没有缺。
-3. **安全**：注入、越权、密钥泄露、未校验输入。
-4. **简洁**：过度设计 / 重复 / 可删的死代码 / 暂时用不上的功能。
-5. **风格**：命名、一致性、可读性——最后看，别一上来挑这个。
+Review in this **priority order**. Do not dwell on a lower priority while a higher one is unresolved:
+1. **Correctness**: is the logic sound; are edge cases, errors, or concurrency missing; can it crash?
+2. **Requirements**: check each requirement and design point. Does the change do what was requested, and is anything missing?
+3. **Security**: injection, unauthorized access, secret leakage, unvalidated input.
+4. **Simplicity**: overengineering, duplication, removable dead code, features that are not needed yet.
+5. **Style**: naming, consistency, readability—review these last, not first.
 
-分轻重：拦路的（崩/安全）立刻修，重要的往下走之前修，小的记下回头弄。
+Use severity: fix blockers (crashes/security) immediately, fix important issues before proceeding, and note minor issues for later.
 
-## 收评审
-- **先核实再改**：这条对**本**代码库成立吗？会弄坏现有功能吗？现在这么写是不是有原因？拿不准就说"我没法验证 X，要我查/问/还是先放着"。
-- **不盲从**：建议错了、缺上下文、要求做暂时用不上的东西、和既定架构决定冲突——用**技术理由**顶回去，别因为是评审者说的就改。涉及架构的冲突先停下找人。
-- **不表演**：禁"你说得对！""好建议！""谢谢指出！"。改了就直说改了啥、在哪改；顶错了就一句"查了确实我错，因为 X，改"，别长篇道歉。
-- 不清楚就**先把所有条目问清再动手**，别只挑懂的几条做（条目常相关，半懂=做错）。
-- 一次改一条、各自测、确认没引入回归（见 verify-before-done）。
+## Receiving review feedback
+- **Verify before changing anything**: does this feedback apply to **this** codebase? Could it break existing behavior? Is there a reason the code is written this way? If uncertain, say, "I cannot verify X. Should I investigate, ask, or leave it for now?"
+- **Do not comply blindly**: if a suggestion is wrong, lacks context, asks for something not needed yet, or conflicts with an established architecture decision, push back with **technical reasons** rather than changing it because a reviewer said so. Stop and consult someone when the conflict concerns architecture.
+- **No performative agreement**: do not say "You're right!", "Good suggestion!", or "Thanks for catching that!" If you make the change, state what changed and where. If your pushback was wrong, say only, "I checked and I was wrong because X; I changed it." Do not write a long apology.
+- If anything is unclear, **clarify every item before making changes**. Do not act only on the items you understand; review items are often related, and partial understanding leads to wrong changes.
+- Address one item at a time, test each change, and confirm that it introduced no regressions (see verify-before-done).

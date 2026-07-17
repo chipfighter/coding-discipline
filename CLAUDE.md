@@ -1,35 +1,68 @@
-# 本项目引导文档
+# Project guide
 
-> 这份文档由 coding-discipline 插件在第一次进入本项目时自动创建。
-> 它一开始几乎是空的，这是故意的——它不是开工前写好的说明书，
-> 而是随项目往前走、每确定一件事就补一行、慢慢长出来的。
->
-> 往里写东西的规矩（和插件的 context-hygiene 一致）：
-> - 只写「已经和你拍板定了、而且光看代码看不出来」的事；讨论中、还没定的别写。
-> - 还没定的地方，就留着「（还没定）」这几个字。
-> - 原来写的事后来变了，改那一行，别在下面另起一条打架的。
-> - 等这几段都填得差不多了，可以把本段说明删掉。
+## Current source of truth
 
-## 当前最新状态看哪份文档
-GitHub Releases / tags（以最新 release 为准）；仓库现状以 main 的 README 为准。
+Use the latest GitHub Release / tag for released state. Use the `README.md` on
+`main` for the current repository state.
 
-## 这项目是什么
-给 AI 编程助手的双层护栏（coding-discipline）：spec 同步 + 风险触发纪律。定位：harness 负责把事做快，skill 负责在特定风险下别犯蠢，spec-sync 负责把拍板的目标写回当前 spec、让人和 AI 做同一件事。产品只押两块不随模型升级贬值的地基：倾向型失败的硬护栏、人机目标同步。
+## What this project is
 
-## 硬边界：绝不做什么
-- 不与 harness 争编排层：子 agent 调度、计划模式、worktree 编排、模型选择一律不做。
-- 不做 Lite / Strict 之类的模式配置；分级由触发条件自然涌现。
-- 触发真源只有各 SKILL.md 的 description；SessionStart 总纲不复制路由表。
-- 项目引导文档只索引当前 spec，不承载活跃 spec。
-- skill 只按失败模式设立：说不出「防哪一个失败模式」的 skill 不设。
-- 纪律文案触发后不软化：硬度在 skill 内部，风险校准只做在触发边界。
-- 通用高风险信号准入测试：「换行业、换语言仍普遍高代价」才进 description，其余归项目规则；固定开销预算零和（加一条先删一条），基线 = 1491 字（v0.5.0 基线 1346 + 经用户批准的 145 字 spec-sync description，一次性调整，此后重新冻结）。
-- 回归案例只从真实误 / 漏触发 issue 生长、绑定对应 description 修改；不建人工场景资产、不设发版门槛。
+`coding-discipline` is a workflow-agnostic, two-layer guardrail plugin for AI
+coding agents: spec sync preserves confirmed intent across sessions, while
+risk-triggered skills prevent costly engineering shortcuts. The harness owns
+speed and orchestration; skills intervene only for specific failure modes;
+`spec-sync` writes confirmed goals, boundaries, and acceptance criteria back to
+the current source of truth so humans and agents keep building the same thing.
 
-## 技术栈 / 目录约定
-（还没定）
+The product invests only in two foundations that should remain useful as models
+improve: hard guardrails against recurring judgment failures, and durable
+human-agent intent alignment.
 
-## 怎么算「做完」
-- v0.6.0（触发重校准）：跨平台自动化 CI 通过，且固定注入开销（SessionStart 总纲 + 全部 description 之和）不高于 v0.5.0。触发效果由真实用户反馈持续校准，不设人工场景发版门槛。
-- v0.6.1（评审去仪式化 + 验证时序）：CI 通过（含固定开销不超 v0.5.0 基线断言）；code-review 不再因 PR / 合并事件触发，verify 只认最后一次相关改动后拿到、且刚好能证明结论的证据。
-- v0.7.0（spec 同步层）：新增 spec-sync（description 145 字）与 brainstorming / verify-before-done 正文衔接，现有 7 条 description 和 SessionStart 总纲不改；README 双语改为「spec 同步 + 风险护栏」定位；CI 通过（固定注入 1466 ≤ 基线 1491）。
+## Hard boundaries
+
+- Do not compete with the harness orchestration layer: no subagent scheduling,
+  plan-mode replacement, worktree orchestration, or model selection.
+- Do not add Lite / Strict modes. Risk levels emerge from trigger boundaries.
+- Each `SKILL.md` description is the only routing source. The SessionStart
+  primer must not duplicate the routing table.
+- Project guide files point to the current spec; they do not host an active spec.
+- Create skills only around named failure modes. If a skill cannot state the
+  failure it prevents, it does not belong.
+- Once a skill triggers, do not soften its discipline. Risk calibration belongs
+  at the trigger boundary.
+- Admit a generic high-risk signal only if it stays broadly costly across
+  industries and languages; project-specific risks belong in project guidance.
+- Fixed injected context is zero-sum: adding text requires removing equivalent
+  text elsewhere. v0.8.0 establishes a one-time 4944-character English
+  baseline, frozen again after the migration.
+- Regression cases grow only from real false-trigger / missed-trigger reports
+  and must map to the description change they justify. Do not maintain a
+  synthetic scenario suite or make one a release gate.
+- The runtime, manifests, templates, issue forms, code comments, and primary
+  `README.md` are English-only. `README.zh-CN.md` is the sole maintained Chinese
+  translation. Agent replies still follow the user's language unless requested
+  otherwise.
+
+## Stack and directory conventions
+
+(Not decided.)
+
+## Definition of done by release
+
+- v0.6.0 (trigger recalibration): cross-platform CI passes and fixed injected
+  context does not exceed the v0.5.0 baseline. Trigger quality is calibrated
+  from real feedback rather than a synthetic release gate.
+- v0.6.1 (review without ceremony + evidence timing): CI passes; `code-review`
+  no longer triggers merely because work enters a PR or merge; verification
+  accepts only evidence collected after the last relevant change and strong
+  enough to prove the claim.
+- v0.7.0 (spec sync layer): add `spec-sync` and connect it to `brainstorming`
+  and `verify-before-done`; preserve the other seven descriptions and the
+  SessionStart primer; present the dual-layer positioning in both READMEs; CI
+  passes with fixed injected context at 1466 characters against a 1491 budget.
+- v0.8.0 (English-first global release): translate the complete active product
+  surface to English without changing v0.7.0 skill behavior; make `README.md`
+  the English primary entry and keep only `README.zh-CN.md` as a Chinese
+  translation; freeze the English fixed-context baseline at 4944 characters;
+  version both manifests as 0.8.0; all metadata, Linux hook, and Windows hook
+  tests pass.
