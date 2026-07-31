@@ -73,7 +73,13 @@ codex plugin marketplace add .
 第一条命令把本仓库添加为自托管插件源，第二条安装插件。安装后新开一个
 session。本地测试时，把第一条中的仓库名换成本地路径。
 
-### 只安装 skills，不安装 hooks（Codex）
+### 只安装 skills，不安装 hooks（Codex 及其他宿主）
+
+8 个 skill 都是符合 [agentskills.io](https://agentskills.io) 规范的普通
+`SKILL.md`：合规的 `name`、不超过 1024 字符的 description，以及每个文件
+自带的 `license`——这样单独拷走的 skill 仍然带着授权条款。CI 会强制这三
+条限制，因为 Claude Code 对它们都很宽松，一旦违反，在这里照常工作，拷到
+别的宿主却会静默失败。
 
 Codex 原生支持 `SKILL.md`：
 
@@ -116,7 +122,12 @@ Copy-Item -Recurse "plugins\coding-discipline\skills\*" "$HOME\.agents\skills\"
 
 - **SessionStart 纪律总纲**：注入一段精简、平台中立的纪律，要求正式调用
   命中的 skill，维护指令优先级，并要求 agent 用用户的语言回答、用仓库
-  已有语言编写文件和注释。
+  已有语言编写文件和注释。Hook 会按各宿主自己的文档输出对应信封——
+  Claude Code 和 Codex 用 `hookSpecificOutput.additionalContext`，Cursor 用
+  `additional_context`，Copilot 用顶层 `additionalContext`——并只追加该宿主
+  自己的调用说明。四种信封形状都有测试覆盖；日常在用的是 Claude Code 和
+  Codex，所以在你自己跑通之前，请把 Cursor 和 Copilot 当作"符合规范但未
+  实测"。
 - **被动本地用量计数**：把 session 激活记录追加到
   `~/.coding-discipline/usage.jsonl`。Claude Code 还可以记录每个 skill
   的调用。数据不会上传。
@@ -163,6 +174,27 @@ Skill 是提示词层面的纪律，不是确定性规则引擎。它能降低�
 误触发和漏触发请通过仓库的 routing feedback issue 模板反馈。回归案例只
 从真实失败中生长，不维护人工场景发版套件。
 
+## 安全
+
+Skill 本身就是可执行的上下文：它写什么，都会进入一个已经握着你的凭据和
+文件系统的 agent。2026 年对公开 skill 目录的扫描发现，其中相当一部分带有
+提示词注入和凭据外传，所以本插件把"我们的 skill 是干净的"当成一个需要被
+检验的声明，而不是一句承诺。
+
+`tests/test-skill-safety.py` 会扫描所有随插件分发的文件，检查已知的攻击
+类型——网络外传、凭据与私钥路径、管道进 shell、解码或间接执行，以及会对
+人眼隐藏指令的不可见/双向控制字符。每条规则都带一个必须命中的样本，所以
+一条悄悄失效的规则会让构建失败，而不是永远报告通过。CI 在 Ubuntu 和
+Windows 上都会执行。
+
+本插件不发起任何网络请求，也不上报任何遥测。它在你的仓库之外唯一的写入
+是本地用量日志 `~/.coding-discipline/usage.jsonl`；如果这个位置发生变化，
+测试会失败，提醒重新核对上面这条声明。
+
+```bash
+python tests/test-skill-safety.py
+```
+
 ## 依赖
 
 - **bash**：macOS 和 Linux 自带；Windows 安装
@@ -174,6 +206,7 @@ Skill 是提示词层面的纪律，不是确定性规则引擎。它能降低�
 
 ```bash
 python tests/test-plugin-metadata.py
+python tests/test-skill-safety.py
 bash tests/test-hooks.sh
 ```
 

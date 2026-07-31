@@ -85,7 +85,14 @@ second installs the plugin. Open a new session after installation. To test a
 local checkout, replace the repository name in the first command with a local
 path.
 
-### Skills only, without hooks (Codex)
+### Skills only, without hooks (Codex and other hosts)
+
+The eight skills are plain `SKILL.md` files that conform to the
+[agentskills.io](https://agentskills.io) spec — conformant `name`, a
+description within the 1024-character limit, and a `license` on every file so a
+copied skill still carries its terms. A CI test enforces those limits, because
+Claude Code is lenient about all three and a violation would fail silently
+wherever else the directory is copied.
 
 Codex supports `SKILL.md` directly:
 
@@ -130,7 +137,13 @@ and execution.
 - **SessionStart discipline:** injects a compact, host-neutral primer that
   requires matched skills to be formally invoked, preserves instruction
   precedence, and tells the agent to answer in the user's language while
-  matching the repository language for files and comments.
+  matching the repository language for files and comments. The hook emits the
+  envelope each host documents — `hookSpecificOutput.additionalContext` for
+  Claude Code and Codex, `additional_context` for Cursor, top-level
+  `additionalContext` for Copilot — and appends only the host's own invocation
+  note. Tests cover all four envelope shapes; Claude Code and Codex are the two
+  used daily, so treat Cursor and Copilot as conformant-but-unproven until you
+  have run them yourself.
 - **Passive local usage counting:** appends session activations to
   `~/.coding-discipline/usage.jsonl`. Claude Code also exposes per-skill
   invocations. Nothing is sent over the network.
@@ -183,6 +196,30 @@ Report false triggers and missed triggers with the repository's routing
 feedback issue template. Regression cases grow from real failures rather than a
 synthetic release suite.
 
+## Security
+
+A skill is executable context: whatever it says enters an agent that already
+holds your credentials and your file system. Public skill catalogues scanned in
+2026 turned out to carry prompt injection and credential exfiltration in a
+large minority of entries, so this plugin treats "our skills are clean" as a
+claim that has to be checked rather than promised.
+
+`tests/test-skill-safety.py` scans every shipped file for the known attack
+classes — network egress, credential and private-key paths, piping into a
+shell, decoded or indirect execution, and invisible or bidirectional Unicode
+that hides instructions from a human reading the diff. Each rule carries a
+sample it must still match, so a pattern that quietly stops working fails the
+build instead of reporting success forever. CI runs it on Ubuntu and Windows.
+
+The plugin makes no network calls and sends no telemetry. Its only write
+outside your repository is the local usage log at
+`~/.coding-discipline/usage.jsonl`, and the test fails if that sink ever moves
+without this claim being re-checked.
+
+```bash
+python tests/test-skill-safety.py
+```
+
 ## Dependencies
 
 - **bash** — included on macOS and Linux. On Windows, install
@@ -194,6 +231,7 @@ synthetic release suite.
 
 ```bash
 python tests/test-plugin-metadata.py
+python tests/test-skill-safety.py
 bash tests/test-hooks.sh
 ```
 
