@@ -1,6 +1,7 @@
 ---
 name: verify-before-done
 description: Use before claiming "done", "fixed", "tested", or "it runs", and before committing or opening a PR or MR—no task is exempt. Accept only evidence gathered after the last relevant change and just sufficient to prove the claim; do not over-verify small changes.
+license: MIT
 ---
 
 Hard rule: **Only evidence gathered after the last relevant change to the code, files, or environment, and directly sufficient to prove the claim, counts.**

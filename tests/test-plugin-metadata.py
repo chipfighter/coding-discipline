@@ -11,6 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "coding-discipline"
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
 HAN = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]")
+# agentskills.io constrains the two fields every host reads. Claude Code is
+# lenient about both, so a violation keeps working here and fails silently
+# wherever else the skills directory is copied.
+SKILL_NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+SKILL_NAME_MAX = 64
+SKILL_DESCRIPTION_MAX = 1024
 # Re-frozen after the 2026-07 dedup trim (4944 at v0.8.0). Any new primer or
 # description text must be offset elsewhere (zero-sum).
 FIXED_CONTEXT_BUDGET = 4580
@@ -86,6 +92,15 @@ for path in skills:
     description = re.search(r"(?m)^description:\s*(.+)\s*$", frontmatter)
     assert name and name.group(1) == path.parent.name, f"{path} has the wrong name"
     assert description, f"{path} has no description"
+    assert SKILL_NAME.fullmatch(name.group(1)), f"{path} name is not portable"
+    assert len(name.group(1)) <= SKILL_NAME_MAX, f"{path} name is too long"
+    assert len(description.group(1)) <= SKILL_DESCRIPTION_MAX, (
+        f"{path} description exceeds the {SKILL_DESCRIPTION_MAX}-char spec limit"
+    )
+    # The skills directory is documented as copyable on its own, so each file
+    # has to carry its own licence rather than rely on the repository root.
+    licence = re.search(r"(?m)^license:\s*(.+?)\s*$", frontmatter)
+    assert licence and licence.group(1) == "MIT", f"{path} has no license: MIT"
     description_chars += len(description.group(1))
 
 primer_text = (PLUGIN / "hooks" / "skill-discipline.md").read_text(encoding="utf-8")

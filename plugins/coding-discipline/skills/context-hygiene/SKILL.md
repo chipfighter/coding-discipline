@@ -1,6 +1,7 @@
 ---
 name: context-hygiene
 description: Use when starting a project, reading project documentation or history, or resolving conflicts between documents. For current state, read only the latest documents designated by the project; do not proactively read archives; do not duplicate the spec; use long-term memory only for environment, people, and preferences not recorded in the repository.
+license: MIT
 ---
 
 Old documents can trace history, but they are not current facts. Models easily follow the most extensively documented old account instead of finding the latest, correct one. If the project guide document (Codex's `AGENTS.md` / Claude Code's `CLAUDE.md`) designates a current-state document and archive location, follow it.
