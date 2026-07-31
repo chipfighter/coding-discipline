@@ -15,7 +15,7 @@ description: Use before coding when requirements have multiple reasonable interp
 ## Process
 1. **Inspect the context first**: relevant files, documentation, and recent commits. Do not design in a vacuum.
 2. **Ask one question at a time** to clarify the goal, constraints, and success criteria. Offer choices when possible; they are easier to answer than open-ended questions. Put only one question in each message.
-3. **Split up work that is too large**: if it is really several independent subsystems, stop and help divide it into subprojects and prioritize them before detailing a large task that should be broken apart.
+3. **Do not thin out an oversized request to fit one pass**: if delivering the whole request at usable depth exceeds this session, say so before designing. Cut it into paths that each work end to end — not layers or setup phases, which produce nothing checkable and hide how much is left. Design and deliver **only the first** path, and state which parts were not built. Covering every part shallowly is not completion; it is how a large request becomes unusable. Judge by the depth the deliverable needs, not by how many files it touches.
 4. **Present 2–3 approaches with tradeoffs**: put your **recommended** option first and explain why, then list the alternatives and their costs.
 5. **Present the design in sections and confirm each one**: make each section as long or short as its complexity warrants. After each section, ask "Does this look right?" before continuing.
 6. **Remove features that are not needed yet (YAGNI)**: if it is not needed now, do not design it.
