@@ -7,9 +7,11 @@ HOOK="${PLUGIN_ROOT}/hooks/session-start-skills"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/coding-discipline-tests.XXXXXX")"
 
 # A candidate interpreter must actually run. On Windows, the Microsoft Store
-# python3.exe stub passes command -v but exits 49 when invoked.
+# python3.exe stub passes command -v but exits 49 when invoked; `py` is the
+# launcher a real Windows install provides, so it has to be a candidate too or
+# this suite is unrunnable on the Git Bash setup the README tells people to use.
 PYTHON=
-for cand in python3 python; do
+for cand in python3 python py; do
   if "$cand" -c '' >/dev/null 2>&1; then PYTHON="$cand"; break; fi
 done
 if [ -z "$PYTHON" ]; then
