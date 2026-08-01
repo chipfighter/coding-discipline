@@ -160,6 +160,17 @@ Disable counting:
 CD_USAGE_ENABLED=0
 ```
 
+Disable the primer by itself, leaving counting and guide seeding in place:
+
+```bash
+CD_PRIMER=0
+```
+
+The primer is fixed cost paid on every session, and whether it earns that cost
+is a question about your workload rather than a claim this project can settle
+for you. This switch is what makes it answerable: run the same tasks with it on
+and off, and compare.
+
 ## Project guide seeding
 
 On the first session inside a Git repository, the plugin creates an empty guide

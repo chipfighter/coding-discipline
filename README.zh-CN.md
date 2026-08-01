@@ -144,6 +144,16 @@ bash plugins/coding-discipline/hooks/skills-count.sh
 CD_USAGE_ENABLED=0
 ```
 
+只关闭纪律总纲，保留计数和引导文档生成：
+
+```bash
+CD_PRIMER=0
+```
+
+总纲是每个 session 都要付的固定开销。它值不值这个开销，取决于你自己的工作
+负载，不是本项目单方面能替你下结论的事。这个开关的意义就在于让它可被回答：
+同样一批任务，开和关各跑一遍，比较结果。
+
 ## 自动生成项目引导文档
 
 第一次在 Git 仓库中开启 session 时，如果目标文件不存在，插件会创建一份
