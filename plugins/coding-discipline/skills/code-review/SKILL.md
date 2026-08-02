@@ -1,6 +1,7 @@
 ---
 name: code-review
 description: Use when changes affect interactions across multiple modules, involve high-risk areas (authorization/authentication, payments/funds, data deletion/migration, public APIs/cross-service interfaces/security boundaries), or the user requests a review. Review in this order—correctness → requirements → security → simplicity → style. Verify feedback before acting; do not comply blindly or agree performatively. Unless the user asks, documentation-only changes, explicit config values, and mechanical renames do not trigger merely because of a PR or merge.
+license: MIT
 ---
 
 ## Performing a review (review it yourself; delegate when worthwhile and supported)

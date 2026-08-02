@@ -1,6 +1,7 @@
 ---
 name: tdd
 description: Use before implementation when behavior can be verified by automated tests and regression coverage has clear value. For bugs with an unknown root cause, use systematic-debugging first, then return for red-green. Follow red-green-refactor—write a failing test first, add only enough code to pass it, then refactor. Do not trigger for documentation, configuration, copy-only, or styling changes with no testable behavior.
+license: MIT
 ---
 
 Hard rule: **write no implementation code without a test that failed first.**

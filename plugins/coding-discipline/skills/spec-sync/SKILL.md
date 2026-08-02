@@ -1,6 +1,7 @@
 ---
 name: spec-sync
 description: Use in cross-session work when user-confirmed outcomes, non-goals, hard constraints, or acceptance criteria have not been written back to the current source of truth (spec), or reality conflicts with it enough that following it would be wrong; also use during wrap-up or handoff when a source of truth should exist but does not. Edit only the affected original wording; do not keep separate old and new versions. Do not trigger for work that can be completed within one session, local implementation details, verification against existing acceptance criteria, locating the source of truth, or ordinary documentation edits.
+license: MIT
 ---
 
 Hard rule: **A change confirmed in conversation must not remain only in the conversation.** If user-confirmed intent that affects future collaboration or acceptance is not written back to the source of truth in this session, the next session cannot even see that the user changed their mind—intent that was never persisted cannot be recovered.

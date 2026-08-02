@@ -7,9 +7,11 @@ HOOK="${PLUGIN_ROOT}/hooks/session-start-skills"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/coding-discipline-tests.XXXXXX")"
 
 # A candidate interpreter must actually run. On Windows, the Microsoft Store
-# python3.exe stub passes command -v but exits 49 when invoked.
+# python3.exe stub passes command -v but exits 49 when invoked; `py` is the
+# launcher a real Windows install provides, so it has to be a candidate too or
+# this suite is unrunnable on the Git Bash setup the README tells people to use.
 PYTHON=
-for cand in python3 python; do
+for cand in python3 python py; do
   if "$cand" -c '' >/dev/null 2>&1; then PYTHON="$cand"; break; fi
 done
 if [ -z "$PYTHON" ]; then
@@ -122,5 +124,54 @@ make_repo "$repo_opt_out"
 )
 [ ! -e "${repo_opt_out}/AGENTS.md" ] || fail 'guide opt-out was ignored'
 [ ! -e "${TMP_ROOT}/disabled.jsonl" ] || fail 'usage opt-out was ignored'
+
+# Cursor and Copilot read the primer from different envelope fields than Claude
+# Code and Codex. The hook already handles all four; these cases keep a refactor
+# from silently dropping the two that no maintainer runs day to day.
+assert_no_guide() {
+  local repo="$1" host="$2"
+  [ ! -e "${repo}/AGENTS.md" ] || fail "${host} seeded AGENTS.md"
+  [ ! -e "${repo}/CLAUDE.md" ] || fail "${host} seeded CLAUDE.md"
+}
+
+repo_cursor="${TMP_ROOT}/repo-cursor"
+make_repo "$repo_cursor"
+output="$({
+  cd "$repo_cursor"
+  env -u CODEX_HOME -u PLUGIN_ROOT -u COPILOT_CLI \
+    CURSOR_PLUGIN_ROOT="$PLUGIN_ROOT" \
+    CD_USAGE_LOG="${TMP_ROOT}/usage-cursor.jsonl" \
+    "$HOOK" cursor
+})"
+printf '%s\n' "$output" | "$PYTHON" -c 'import json,sys; p=json.load(sys.stdin); assert set(p) == {"additional_context"}, p; assert p["additional_context"].strip()' \
+  || fail 'Cursor did not receive additional_context'
+grep -q '"platform":"cursor"' "${TMP_ROOT}/usage-cursor.jsonl" \
+  || fail 'Cursor usage record has the wrong platform'
+assert_no_guide "$repo_cursor" Cursor
+
+repo_copilot="${TMP_ROOT}/repo-copilot"
+make_repo "$repo_copilot"
+output="$({
+  cd "$repo_copilot"
+  env -u CODEX_HOME -u PLUGIN_ROOT -u CURSOR_PLUGIN_ROOT \
+    COPILOT_CLI=1 \
+    CD_USAGE_LOG="${TMP_ROOT}/usage-copilot.jsonl" \
+    "$HOOK" copilot
+})"
+printf '%s\n' "$output" | "$PYTHON" -c 'import json,sys; p=json.load(sys.stdin); assert set(p) == {"additionalContext"}, p; assert p["additionalContext"].strip()' \
+  || fail 'Copilot did not receive additionalContext'
+grep -q '"platform":"copilot"' "${TMP_ROOT}/usage-copilot.jsonl" \
+  || fail 'Copilot usage record has the wrong platform'
+assert_no_guide "$repo_copilot" Copilot
+
+# Hosts outside the two first-class ones must get the neutral invocation note
+# rather than Claude Code's Skill-tool wording.
+case "$output" in
+  *'Load skills through the skill mechanism of this host'*) ;;
+  *) fail 'a non-primary host did not receive the neutral invocation note' ;;
+esac
+case "$output" in
+  *'Skill tool'*) fail 'a non-primary host received Claude Code wording' ;;
+esac
 
 printf 'hook behavior tests passed\n'
