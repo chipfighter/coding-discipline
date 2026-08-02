@@ -66,6 +66,14 @@ seed_agent_doc() {
 }
 seed_agent_doc || true
 
+# The primer is the one piece worth isolating: it is fixed cost paid on every
+# session, and whether it earns that cost can only be measured by turning it off
+# on its own. Counting and seeding already ran above, so this changes nothing but
+# the injected text.
+case "${CD_PRIMER:-1}" in
+  0|false|False|FALSE|no|No|NO|off|Off|OFF) exit 0 ;;
+esac
+
 # Cursor uses additional_context; Copilot/SDK uses top-level additionalContext;
 # Claude Code, Codex, and the default path use
 # hookSpecificOutput.additionalContext.

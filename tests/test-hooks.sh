@@ -174,4 +174,31 @@ case "$output" in
   *'Skill tool'*) fail 'a non-primary host received Claude Code wording' ;;
 esac
 
+# The primer can be switched off on its own. Measuring what those characters buy
+# means changing that one variable and nothing else, so usage counting and guide
+# seeding have to survive the opt-out.
+repo_primer_off="${TMP_ROOT}/repo-primer-off"
+make_repo "$repo_primer_off"
+output="$({
+  cd "$repo_primer_off"
+  CD_PRIMER=0 CD_USAGE_LOG="${TMP_ROOT}/usage-primer-off.jsonl" "$HOOK" claude-code
+})"
+[ -z "$output" ] || fail 'CD_PRIMER=0 still emitted a primer payload'
+[ -f "${repo_primer_off}/CLAUDE.md" ] || fail 'CD_PRIMER=0 also suppressed guide seeding'
+grep -q '"platform":"claude-code"' "${TMP_ROOT}/usage-primer-off.jsonl" \
+  || fail 'CD_PRIMER=0 also suppressed usage counting'
+
+# Leaving it unset keeps the current behavior.
+repo_primer_on="${TMP_ROOT}/repo-primer-on"
+make_repo "$repo_primer_on"
+output="$({
+  cd "$repo_primer_on"
+  CD_USAGE_ENABLED=0 "$HOOK" claude-code
+})"
+printf '%s\n' "$output" | assert_json_output
+case "$output" in
+  *'Skill discipline'*) ;;
+  *) fail 'the default path stopped injecting the primer' ;;
+esac
+
 printf 'hook behavior tests passed\n'
