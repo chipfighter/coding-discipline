@@ -1,3 +1,5 @@
+
+
 # coding-discipline
 
 **Chinese** → [README.zh-CN.md](README.zh-CN.md)
@@ -153,6 +155,8 @@ View the local summary:
 ```bash
 bash plugins/coding-discipline/hooks/skills-count.sh
 ```
+
+Pass a keyword as an argument to filter records whose full line contains it.
 
 Disable counting:
 
