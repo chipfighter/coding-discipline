@@ -51,10 +51,11 @@ cd_write_record() {
   esac
   platform="$(cd_detect_platform)"
   ts="$(date -u +%FT%TZ 2>/dev/null || echo '?')"
-  # JSON safety: the canonical path has no backslashes left; escape quotes.
+  # JSON safety: escape backslashes before quotes. The canonical path has no
+  # backslashes left, but skill and session_id arrive as decoded host values.
   cwd="$(cd_canonical_path "$cwd")"; cwd="${cwd//\"/\\\"}"
-  skill="${skill//\"/\\\"}"
-  session_id="${session_id//\"/\\\"}"
+  skill="${skill//\\/\\\\}"; skill="${skill//\"/\\\"}"
+  session_id="${session_id//\\/\\\\}"; session_id="${session_id//\"/\\\"}"
   mkdir -p "$(dirname "$CD_USAGE_LOG")" 2>/dev/null || true
   printf '{"ts":"%s","platform":"%s","event":"%s","skill":"%s","cwd":"%s","session_id":"%s"}\n' \
     "$ts" "$platform" "$event" "$skill" "$cwd" "$session_id" >> "$CD_USAGE_LOG" 2>/dev/null || true

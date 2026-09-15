@@ -216,6 +216,15 @@ grep -q '"cwd":"C:/Users/dev/proj"' "${TMP_ROOT}/usage-skill-win.jsonl" \
 grep -q '"session_id":"sess-win"' "${TMP_ROOT}/usage-skill-win.jsonl" \
   || fail "skill record dropped the session id: $(cat "${TMP_ROOT}/usage-skill-win.jsonl")"
 
+# Decoding the payload leaves real backslashes in a value, so the writer has to
+# escape them again. Otherwise odd\name is logged as a newline, and a trailing
+# backslash swallows the closing quote of its field.
+printf '%s' '{"session_id":"sess\\bs","cwd":"/work/proj","tool_name":"Skill","tool_input":{"skill":"odd\\name\\"}}' \
+  | CD_USAGE_LOG="${TMP_ROOT}/usage-backslash.jsonl" bash "$LOG_USAGE"
+"$PYTHON" -c 'import json,sys; r=json.loads(sys.stdin.readline()); assert r["skill"] == "odd\\name\\" and r["session_id"] == "sess\\bs", r' \
+  < "${TMP_ROOT}/usage-backslash.jsonl" \
+  || fail "a backslash in a logged value broke the record: $(cat "${TMP_ROOT}/usage-backslash.jsonl")"
+
 # Session records take the directory from $PWD, skill records from the host
 # payload. On Windows those spell one directory as "/tmp/x" or "/c/x" versus
 # "C:\x", so both writers must settle on one spelling or per-project counts split.
