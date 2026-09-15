@@ -146,9 +146,13 @@ and execution.
   have run them yourself.
 - **Passive local usage counting:** appends session activations to
   `~/.coding-discipline/usage.jsonl`. Claude Code also exposes per-skill
-  invocations. Nothing is sent over the network.
+  invocations, each tagged with its session id. Every record keeps the
+  directory it ran in, spelled the same way on every host, so usage stays
+  attributable to a project after that project is deleted. Nothing is sent over
+  the network.
 
-View the local summary:
+View the local summary by host, skill, and project; pass a keyword such as a
+project name to narrow it:
 
 ```bash
 bash plugins/coding-discipline/hooks/skills-count.sh

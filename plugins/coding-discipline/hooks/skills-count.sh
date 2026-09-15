@@ -3,7 +3,8 @@
 # and PostToolUse(Skill) (per-skill activity on Claude Code). No jq required.
 # Usage:
 #   bash skills-count.sh            # all records
-#   bash skills-count.sh <keyword>  # records whose full line contains keyword
+#   bash skills-count.sh <keyword>  # records whose full line contains keyword,
+#                                   # e.g. a project name to see its skills
 PATH="/usr/bin:/mingw64/bin:${PATH:-}"
 export PATH
 set -euo pipefail
@@ -33,6 +34,13 @@ echo ""
 echo "-- Skill invocations by skill (Claude Code only) --"
 sk="$(printf '%s\n' "$data" | grep '"event":"skill"' || true)"
 if [ -n "$sk" ]; then printf '%s\n' "$sk" | field skill | sort | uniq -c | sort -rn
+else echo "(None yet; only Claude Code exposes per-skill activity.)"; fi
+
+echo ""
+echo "-- Skill invocations by project (Claude Code only) --"
+# Records written before paths were canonicalized doubled every separator
+# (D://work//x); fold them onto the current spelling so a project counts once.
+if [ -n "$sk" ]; then printf '%s\n' "$sk" | field cwd | sed -E 's#(.)/{2,}#\1/#g' | sort | uniq -c | sort -rn
 else echo "(None yet; only Claude Code exposes per-skill activity.)"; fi
 
 echo ""

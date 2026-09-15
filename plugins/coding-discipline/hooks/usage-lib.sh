@@ -2,7 +2,8 @@
 # Shared cross-platform usage library sourced by session-start-skills and
 # log-usage. Pure bash, no jq.
 # Every host appends to the same JSONL sink; environment variables identify the
-# host. Record shape: {"ts","platform","event":"session"|"skill","skill","cwd"}
+# host. Record shape:
+# {"ts","platform","event":"session"|"skill","skill","cwd","session_id"}
 
 PATH="/usr/bin:/mingw64/bin:${PATH:-}"
 export PATH
@@ -22,21 +23,40 @@ cd_detect_platform() {
   fi
 }
 
-# cd_write_record <event> <skill> <cwd>
-# skill may be empty; every failure stays silent and never interrupts work.
+# cd_canonical_path <path>
+# One directory must reach the log under one spelling, or per-project counts
+# split. On Windows a hook payload carries the native C:\x while Git Bash's $PWD
+# reads /c/x or a mount such as /tmp/x; all of them become C:/x. Only cygpath
+# knows where MSYS mounts point, so rewriting the string alone is not enough.
+cd_canonical_path() {
+  local p="${1:-}"
+  case "$p" in
+    /*)
+      case "${OSTYPE:-}" in
+        msys*|cygwin*) p="$(cygpath -m "$p" 2>/dev/null || printf '%s' "$p")" ;;
+      esac
+      ;;
+  esac
+  printf '%s' "${p//\\//}"
+}
+
+# cd_write_record <event> <skill> <cwd> [session_id]
+# skill and session_id may be empty; every failure stays silent and never
+# interrupts work.
 cd_write_record() {
-  local event="${1:-}" skill="${2:-}" cwd="${3:-}"
+  local event="${1:-}" skill="${2:-}" cwd="${3:-}" session_id="${4:-}"
   local platform ts
   case "$CD_USAGE_ENABLED" in
     0|false|False|FALSE|no|No|NO|off|Off|OFF) return 0 ;;
   esac
   platform="$(cd_detect_platform)"
   ts="$(date -u +%FT%TZ 2>/dev/null || echo '?')"
-  # JSON safety: normalize Windows backslashes to readable forward slashes,
-  # then escape any remaining quotes.
-  cwd="${cwd//\\//}"; cwd="${cwd//\"/\\\"}"
-  skill="${skill//\"/\\\"}"
+  # JSON safety: escape backslashes before quotes. The canonical path has no
+  # backslashes left, but skill and session_id arrive as decoded host values.
+  cwd="$(cd_canonical_path "$cwd")"; cwd="${cwd//\"/\\\"}"
+  skill="${skill//\\/\\\\}"; skill="${skill//\"/\\\"}"
+  session_id="${session_id//\\/\\\\}"; session_id="${session_id//\"/\\\"}"
   mkdir -p "$(dirname "$CD_USAGE_LOG")" 2>/dev/null || true
-  printf '{"ts":"%s","platform":"%s","event":"%s","skill":"%s","cwd":"%s"}\n' \
-    "$ts" "$platform" "$event" "$skill" "$cwd" >> "$CD_USAGE_LOG" 2>/dev/null || true
+  printf '{"ts":"%s","platform":"%s","event":"%s","skill":"%s","cwd":"%s","session_id":"%s"}\n' \
+    "$ts" "$platform" "$event" "$skill" "$cwd" "$session_id" >> "$CD_USAGE_LOG" 2>/dev/null || true
 }

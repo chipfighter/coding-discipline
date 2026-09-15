@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGIN_ROOT="${ROOT}/plugins/coding-discipline"
 HOOK="${PLUGIN_ROOT}/hooks/session-start-skills"
+LOG_USAGE="${PLUGIN_ROOT}/hooks/log-usage"
+SKILLS_COUNT="${PLUGIN_ROOT}/hooks/skills-count.sh"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/coding-discipline-tests.XXXXXX")"
 
 # A candidate interpreter must actually run. On Windows, the Microsoft Store
@@ -200,5 +202,65 @@ case "$output" in
   *'Skill discipline'*) ;;
   *) fail 'the default path stopped injecting the primer' ;;
 esac
+
+# A Windows host sends its native path with JSON-escaped backslashes. Each
+# separator has to come out as one forward slash; doubling them logs the project
+# under a spelling no other record uses.
+printf '%s' '{"session_id":"sess-win","cwd":"C:\\Users\\dev\\proj","tool_name":"Skill","tool_input":{"skill":"coding-discipline:tdd"}}' \
+  | CD_USAGE_LOG="${TMP_ROOT}/usage-skill-win.jsonl" bash "$LOG_USAGE"
+grep -q '"cwd":"C:/Users/dev/proj"' "${TMP_ROOT}/usage-skill-win.jsonl" \
+  || fail "skill record mangled a Windows cwd: $(cat "${TMP_ROOT}/usage-skill-win.jsonl")"
+
+# The session id is what leads from a suspicious trigger back to the transcript
+# that produced it, which is where false-trigger reports come from.
+grep -q '"session_id":"sess-win"' "${TMP_ROOT}/usage-skill-win.jsonl" \
+  || fail "skill record dropped the session id: $(cat "${TMP_ROOT}/usage-skill-win.jsonl")"
+
+# Decoding the payload leaves real backslashes in a value, so the writer has to
+# escape them again. Otherwise odd\name is logged as a newline, and a trailing
+# backslash swallows the closing quote of its field.
+printf '%s' '{"session_id":"sess\\bs","cwd":"/work/proj","tool_name":"Skill","tool_input":{"skill":"odd\\name\\"}}' \
+  | CD_USAGE_LOG="${TMP_ROOT}/usage-backslash.jsonl" bash "$LOG_USAGE"
+"$PYTHON" -c 'import json,sys; r=json.loads(sys.stdin.readline()); assert r["skill"] == "odd\\name\\" and r["session_id"] == "sess\\bs", r' \
+  < "${TMP_ROOT}/usage-backslash.jsonl" \
+  || fail "a backslash in a logged value broke the record: $(cat "${TMP_ROOT}/usage-backslash.jsonl")"
+
+# Session records take the directory from $PWD, skill records from the host
+# payload. On Windows those spell one directory as "/tmp/x" or "/c/x" versus
+# "C:\x", so both writers must settle on one spelling or per-project counts split.
+repo_same="${TMP_ROOT}/repo-same-dir"
+make_repo "$repo_same"
+expected_dir="$(cd "$repo_same" && pwd)"
+payload_dir="$expected_dir"
+if command -v cygpath >/dev/null 2>&1; then
+  expected_dir="$(cygpath -m "$expected_dir")"
+  payload_dir="$(cygpath -w "$payload_dir")"
+fi
+(
+  cd "$repo_same"
+  CD_PRIMER=0 CD_SEED_AGENT_DOC=0 CD_USAGE_LOG="${TMP_ROOT}/usage-same-dir.jsonl" \
+    "$HOOK" claude-code
+  printf '{"session_id":"sess-same","cwd":"%s","tool_name":"Skill","tool_input":{"skill":"coding-discipline:tdd"}}' \
+    "${payload_dir//\\/\\\\}" \
+    | CD_USAGE_LOG="${TMP_ROOT}/usage-same-dir.jsonl" bash "$LOG_USAGE"
+)
+spellings="$(grep -o '"cwd":"[^"]*"' "${TMP_ROOT}/usage-same-dir.jsonl" | sort -u)"
+[ "$spellings" = "\"cwd\":\"${expected_dir}\"" ] \
+  || fail "expected every record for one directory to read ${expected_dir}, got: ${spellings}"
+
+# The report breaks skill invocations down by project. Records written before
+# paths were canonicalized doubled every separator; they have to fold into the
+# same project as newer records instead of showing up as a second project.
+cat > "${TMP_ROOT}/usage-report.jsonl" <<'JSONL'
+{"ts":"2026-07-01T00:00:00Z","platform":"claude-code","event":"skill","skill":"coding-discipline:tdd","cwd":"D://work//alpha"}
+{"ts":"2026-07-02T00:00:00Z","platform":"claude-code","event":"skill","skill":"coding-discipline:git-flow","cwd":"D:/work/alpha","session_id":"s1"}
+{"ts":"2026-07-03T00:00:00Z","platform":"claude-code","event":"skill","skill":"coding-discipline:tdd","cwd":"/home/dev/beta","session_id":"s2"}
+{"ts":"2026-07-03T00:00:01Z","platform":"claude-code","event":"session","skill":"","cwd":"/home/dev/beta","session_id":""}
+JSONL
+report="$(CD_USAGE_LOG="${TMP_ROOT}/usage-report.jsonl" bash "$SKILLS_COUNT")"
+printf '%s\n' "$report" | grep -Eq '^ *2 D:/work/alpha$' \
+  || fail "report did not count old and new spellings as one project: ${report}"
+printf '%s\n' "$report" | grep -Eq '^ *1 /home/dev/beta$' \
+  || fail "report miscounted a project: ${report}"
 
 printf 'hook behavior tests passed\n'
