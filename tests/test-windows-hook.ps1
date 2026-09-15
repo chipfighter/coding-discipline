@@ -43,6 +43,31 @@ try {
         throw 'Windows hook logged the wrong platform'
     }
 
+    # One directory must reach the log under one spelling whichever writer
+    # recorded it: the session record above came from Git Bash's $PWD, while a
+    # skill record carries the native path the host sends.
+    $SkillPayload = @{
+        session_id = 'windows-session'
+        cwd        = $Repo
+        tool_name  = 'Skill'
+        tool_input = @{ skill = 'coding-discipline:tdd' }
+    } | ConvertTo-Json -Compress
+    Push-Location $Repo
+    try {
+        $SkillPayload | & (Join-Path $PluginRoot 'hooks\run-hook.cmd') log-usage
+        if ($LASTEXITCODE -ne 0) { throw "log-usage exited with $LASTEXITCODE" }
+    }
+    finally {
+        Pop-Location
+    }
+    # Select-Object -Unique compares case-sensitively; Sort-Object -Unique would
+    # hide a drive-letter case split.
+    $Spellings = @(Get-Content $env:CD_USAGE_LOG | ForEach-Object { ($_ | ConvertFrom-Json).cwd } | Select-Object -Unique)
+    $ExpectedDir = $Repo.Replace('\', '/')
+    if ($Spellings.Count -ne 1 -or $Spellings[0] -cne $ExpectedDir) {
+        throw "expected every record to read $ExpectedDir, got: $($Spellings -join ' | ')"
+    }
+
     Push-Location $Repo
     try {
         $PreviousPreference = $ErrorActionPreference

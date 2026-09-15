@@ -13,10 +13,14 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 payload="$(cat 2>/dev/null || true)"
 
+# Values arrive JSON-escaped, so a Windows path reads C:\\Users. Undo that
+# before the writer turns each separator into a forward slash.
 extract() {
-  printf '%s' "$payload" \
+  local value
+  value="$(printf '%s' "$payload" \
     | grep -o "\"$1\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" \
-    | head -1 | sed -E "s/.*:[[:space:]]*\"([^\"]*)\"\$/\1/"
+    | head -1 | sed -E "s/.*:[[:space:]]*\"([^\"]*)\"\$/\1/")"
+  printf '%s' "${value//\\\\/\\}"
 }
 
 skill="$(extract skill)"; [ -n "$skill" ] || skill="?"

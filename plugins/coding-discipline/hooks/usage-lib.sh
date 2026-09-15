@@ -22,6 +22,23 @@ cd_detect_platform() {
   fi
 }
 
+# cd_canonical_path <path>
+# One directory must reach the log under one spelling, or per-project counts
+# split. On Windows a hook payload carries the native C:\x while Git Bash's $PWD
+# reads /c/x or a mount such as /tmp/x; all of them become C:/x. Only cygpath
+# knows where MSYS mounts point, so rewriting the string alone is not enough.
+cd_canonical_path() {
+  local p="${1:-}"
+  case "$p" in
+    /*)
+      case "${OSTYPE:-}" in
+        msys*|cygwin*) p="$(cygpath -m "$p" 2>/dev/null || printf '%s' "$p")" ;;
+      esac
+      ;;
+  esac
+  printf '%s' "${p//\\//}"
+}
+
 # cd_write_record <event> <skill> <cwd>
 # skill may be empty; every failure stays silent and never interrupts work.
 cd_write_record() {
@@ -32,9 +49,8 @@ cd_write_record() {
   esac
   platform="$(cd_detect_platform)"
   ts="$(date -u +%FT%TZ 2>/dev/null || echo '?')"
-  # JSON safety: normalize Windows backslashes to readable forward slashes,
-  # then escape any remaining quotes.
-  cwd="${cwd//\\//}"; cwd="${cwd//\"/\\\"}"
+  # JSON safety: the canonical path has no backslashes left; escape quotes.
+  cwd="$(cd_canonical_path "$cwd")"; cwd="${cwd//\"/\\\"}"
   skill="${skill//\"/\\\"}"
   mkdir -p "$(dirname "$CD_USAGE_LOG")" 2>/dev/null || true
   printf '{"ts":"%s","platform":"%s","event":"%s","skill":"%s","cwd":"%s"}\n' \
