@@ -25,6 +25,7 @@ extract() {
 
 skill="$(extract skill)"; [ -n "$skill" ] || skill="?"
 cwd="$(extract cwd)"
+session_id="$(extract session_id)"
 
-cd_write_record skill "$skill" "$cwd"
+cd_write_record skill "$skill" "$cwd" "$session_id"
 exit 0

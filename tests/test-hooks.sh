@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGIN_ROOT="${ROOT}/plugins/coding-discipline"
 HOOK="${PLUGIN_ROOT}/hooks/session-start-skills"
 LOG_USAGE="${PLUGIN_ROOT}/hooks/log-usage"
+SKILLS_COUNT="${PLUGIN_ROOT}/hooks/skills-count.sh"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/coding-discipline-tests.XXXXXX")"
 
 # A candidate interpreter must actually run. On Windows, the Microsoft Store
@@ -210,6 +211,11 @@ printf '%s' '{"session_id":"sess-win","cwd":"C:\\Users\\dev\\proj","tool_name":"
 grep -q '"cwd":"C:/Users/dev/proj"' "${TMP_ROOT}/usage-skill-win.jsonl" \
   || fail "skill record mangled a Windows cwd: $(cat "${TMP_ROOT}/usage-skill-win.jsonl")"
 
+# The session id is what leads from a suspicious trigger back to the transcript
+# that produced it, which is where false-trigger reports come from.
+grep -q '"session_id":"sess-win"' "${TMP_ROOT}/usage-skill-win.jsonl" \
+  || fail "skill record dropped the session id: $(cat "${TMP_ROOT}/usage-skill-win.jsonl")"
+
 # Session records take the directory from $PWD, skill records from the host
 # payload. On Windows those spell one directory as "/tmp/x" or "/c/x" versus
 # "C:\x", so both writers must settle on one spelling or per-project counts split.
@@ -232,5 +238,20 @@ fi
 spellings="$(grep -o '"cwd":"[^"]*"' "${TMP_ROOT}/usage-same-dir.jsonl" | sort -u)"
 [ "$spellings" = "\"cwd\":\"${expected_dir}\"" ] \
   || fail "expected every record for one directory to read ${expected_dir}, got: ${spellings}"
+
+# The report breaks skill invocations down by project. Records written before
+# paths were canonicalized doubled every separator; they have to fold into the
+# same project as newer records instead of showing up as a second project.
+cat > "${TMP_ROOT}/usage-report.jsonl" <<'JSONL'
+{"ts":"2026-07-01T00:00:00Z","platform":"claude-code","event":"skill","skill":"coding-discipline:tdd","cwd":"D://work//alpha"}
+{"ts":"2026-07-02T00:00:00Z","platform":"claude-code","event":"skill","skill":"coding-discipline:git-flow","cwd":"D:/work/alpha","session_id":"s1"}
+{"ts":"2026-07-03T00:00:00Z","platform":"claude-code","event":"skill","skill":"coding-discipline:tdd","cwd":"/home/dev/beta","session_id":"s2"}
+{"ts":"2026-07-03T00:00:01Z","platform":"claude-code","event":"session","skill":"","cwd":"/home/dev/beta","session_id":""}
+JSONL
+report="$(CD_USAGE_LOG="${TMP_ROOT}/usage-report.jsonl" bash "$SKILLS_COUNT")"
+printf '%s\n' "$report" | grep -Eq '^ *2 D:/work/alpha$' \
+  || fail "report did not count old and new spellings as one project: ${report}"
+printf '%s\n' "$report" | grep -Eq '^ *1 /home/dev/beta$' \
+  || fail "report miscounted a project: ${report}"
 
 printf 'hook behavior tests passed\n'

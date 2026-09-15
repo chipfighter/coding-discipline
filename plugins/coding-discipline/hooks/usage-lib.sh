@@ -2,7 +2,8 @@
 # Shared cross-platform usage library sourced by session-start-skills and
 # log-usage. Pure bash, no jq.
 # Every host appends to the same JSONL sink; environment variables identify the
-# host. Record shape: {"ts","platform","event":"session"|"skill","skill","cwd"}
+# host. Record shape:
+# {"ts","platform","event":"session"|"skill","skill","cwd","session_id"}
 
 PATH="/usr/bin:/mingw64/bin:${PATH:-}"
 export PATH
@@ -39,10 +40,11 @@ cd_canonical_path() {
   printf '%s' "${p//\\//}"
 }
 
-# cd_write_record <event> <skill> <cwd>
-# skill may be empty; every failure stays silent and never interrupts work.
+# cd_write_record <event> <skill> <cwd> [session_id]
+# skill and session_id may be empty; every failure stays silent and never
+# interrupts work.
 cd_write_record() {
-  local event="${1:-}" skill="${2:-}" cwd="${3:-}"
+  local event="${1:-}" skill="${2:-}" cwd="${3:-}" session_id="${4:-}"
   local platform ts
   case "$CD_USAGE_ENABLED" in
     0|false|False|FALSE|no|No|NO|off|Off|OFF) return 0 ;;
@@ -52,7 +54,8 @@ cd_write_record() {
   # JSON safety: the canonical path has no backslashes left; escape quotes.
   cwd="$(cd_canonical_path "$cwd")"; cwd="${cwd//\"/\\\"}"
   skill="${skill//\"/\\\"}"
+  session_id="${session_id//\"/\\\"}"
   mkdir -p "$(dirname "$CD_USAGE_LOG")" 2>/dev/null || true
-  printf '{"ts":"%s","platform":"%s","event":"%s","skill":"%s","cwd":"%s"}\n' \
-    "$ts" "$platform" "$event" "$skill" "$cwd" >> "$CD_USAGE_LOG" 2>/dev/null || true
+  printf '{"ts":"%s","platform":"%s","event":"%s","skill":"%s","cwd":"%s","session_id":"%s"}\n' \
+    "$ts" "$platform" "$event" "$skill" "$cwd" "$session_id" >> "$CD_USAGE_LOG" 2>/dev/null || true
 }
