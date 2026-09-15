@@ -130,9 +130,10 @@ Copy-Item -Recurse "plugins\coding-discipline\skills\*" "$HOME\.agents\skills\"
   实测"。
 - **被动本地用量计数**：把 session 激活记录追加到
   `~/.coding-discipline/usage.jsonl`。Claude Code 还可以记录每个 skill
-  的调用。数据不会上传。
+  的调用，并附上所属 session 的 id。每条记录都保留运行时所在的目录，而且在
+  各个宿主上写法一致，所以项目删除之后，用量仍能对应到具体项目。数据不会上传。
 
-查看本地汇总：
+按宿主、skill 和项目查看本地汇总；传入项目名之类的关键词可以只看相关记录：
 
 ```bash
 bash plugins/coding-discipline/hooks/skills-count.sh
