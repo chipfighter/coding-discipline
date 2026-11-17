@@ -1,7 +1,7 @@
 {
   "name": "coding-discipline",
-  "version": "0.10.0",
-  "description": "Workflow-agnostic guardrails for AI coding agents: spec sync preserves confirmed intent across sessions, while risk-triggered skills enforce design alignment, TDD, root-cause debugging, prioritized review, evidence-before-done, disciplined git, and context hygiene.",
+  "version": "0.11.0",
+  "description": "Focused skills for investigating hard-to-explain failures and keeping confirmed project decisions current, with optional design discussion and TDD.",
   "author": {
     "name": "chipfighter"
   },
@@ -14,8 +14,6 @@
     "spec",
     "tdd",
     "debugging",
-    "code-review",
-    "git",
     "workflow",
     "brainstorming",
     "guardrails",
@@ -25,11 +23,10 @@
     "agent-skills"
   ],
   "skills": "./skills/",
-  "hooks": "./hooks/hooks-codex.json",
   "interface": {
     "displayName": "Coding Discipline",
-    "shortDescription": "Spec sync + risk-triggered discipline for coding agents",
-    "longDescription": "Keep confirmed goals, boundaries, and acceptance criteria synchronized with the current spec, then apply firm engineering discipline only when the risk justifies it: align ambiguous requirements, test testable behavior first, find root causes, review by priority, verify before claiming done, use disciplined git flow, and avoid stale-context drift. It adds guardrails without taking over planning, subagents, worktrees, or the development workflow.",
+    "shortDescription": "Root-cause debugging and durable project decisions",
+    "longDescription": "Investigate failures with unclear causes and keep the current project spec aligned with confirmed decisions. Design discussion and test-driven development are available on demand.",
     "developerName": "chipfighter",
     "category": "Coding",
     "capabilities": [
@@ -38,9 +35,8 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use coding-discipline to align the design before implementing this feature.",
       "Use systematic-debugging to find the root cause of this problem.",
-      "Use code-review and verify-before-done to inspect this change."
+      "Use spec-sync to update the current specification with the decisions we just confirmed."
     ],
     "websiteURL": "https://github.com/chipfighter/coding-discipline"
   }

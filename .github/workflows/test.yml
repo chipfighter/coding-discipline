@@ -26,10 +26,3 @@ jobs:
         run: python tests/test-plugin-metadata.py
       - name: Scan the shipped skill surface
         run: python tests/test-skill-safety.py
-      - name: Test hooks on Linux
-        if: runner.os == 'Linux'
-        run: bash tests/test-hooks.sh
-      - name: Test hooks on Windows
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1

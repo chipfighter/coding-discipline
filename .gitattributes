@@ -2,24 +2,12 @@
 .gitattributes         text eol=lf
 .gitignore             text eol=lf
 
-# Hook scripts require LF. CRLF makes Git Bash report $'\r' errors and breaks
-# the polyglot .cmd wrapper.
-# Match extensionless scripts by filename: no slash applies repository-wide,
-# while a slash would incorrectly anchor the pattern at the repository root.
-*.sh                  text eol=lf
-session-start-skills  text eol=lf
-log-usage             text eol=lf
-
-# The polyglot wrapper is parsed by both cmd and bash; modern cmd.exe handles LF.
-*.cmd  text eol=lf
-
 # Other text
 *.md   text eol=lf
 *.json text eol=lf
 *.yml  text eol=lf
 *.yaml text eol=lf
 *.py   text eol=lf
-*.ps1  text eol=lf
 
 # Binary
 *.png binary
