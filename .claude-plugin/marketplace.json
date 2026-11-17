@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "coding-discipline",
-  "description": "Lean, firm guardrails for coding agents: spec sync plus risk-triggered design alignment, TDD, root-cause debugging, prioritized review, evidence-based verification, disciplined git, and context hygiene.",
+  "description": "Root-cause debugging and spec sync, with on-demand design discussion and TDD.",
   "owner": {
     "name": "chipfighter"
   },
@@ -9,7 +9,7 @@
     {
       "name": "coding-discipline",
       "source": "./plugins/coding-discipline",
-      "description": "Eight lean but firm skills, including spec-sync for durable intent and context-hygiene against stale documentation. They trigger only when their conditions match and stay strict once active. Includes a SessionStart discipline primer, passive local usage counting, and first-entry guide-doc seeding for CLAUDE.md / AGENTS.md."
+      "description": "Two automatically selected skills for root-cause debugging and spec sync, plus on-demand brainstorming and TDD."
     }
   ]
 }

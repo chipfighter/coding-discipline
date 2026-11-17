@@ -1,65 +1,21 @@
 # coding-discipline
 
-**English** → [README.md](README.md)
+**English** · [README.md](README.md)
 
-**只加护栏，不接管工作流。** 日常改动零打扰；具名失败模式临近才介入，
-介入就不松。
-
-AI 编程助手经常以两种代价很高的方式失败：
-
-1. **目标漂移。** 对话里已经拍板，但下一轮 session 读到过期 spec，
-   继续实现旧目标。
-2. **跳过步骤。** 需求还没对齐就写代码、根因没找到就修症状，或者没有
-   最新证据就宣称完成。
-
-`coding-discipline` 是一个轻量、与工作流无关的插件，同时处理这两类问题：
-
-- **Spec 同步**：当后续 session 可能按过期意图继续工作时，把已经确认的
-  目标、非目标、约束和验收标准写回当前真源。
-- **风险触发纪律**：只有条件命中时才启用硬护栏，包括设计对齐、TDD、
-  系统化调试、优先级评审、证据式验收、规范的 Git 流程和上下文卫生。
-
-它**不会**替代 Plan 模式、启动子 agent、编排 worktree、选择模型，也不会
-强迫每个任务都走 spec 流程。小改动保持轻量；风险条件一旦命中，对应
-skill 就保持严格。
-
-8 个 skill + 2 个 hook，安装一次，全局生效。支持 Claude Code 和 Codex。
-
-## 为什么做这个项目
-
-[Superpowers](https://github.com/obra/superpowers) 证明了工程纪律可以以
-skill 的形式存在——本插件的跨平台 hook 底座也来自它（见致谢）。但
-Superpowers 是一整套工作流：它的引导词要求 agent 在给出任何回复（包括
-澄清问题）之前，都先走一遍 skill 系统。
-
-coding-discipline 的默认值反过来：skill 平时休眠，只在具名失败模式临近
-时才介入，日常改动零打扰。每个 session 的固定注入约 1.2k tokens，而且
-不会悄悄变大——一旦增长，CI 测试直接失败。插件之间真正不同的开销是
-介入频率，以及介入时会带出什么。
-
-在护栏之上，这个项目加了一块自己的东西：spec 层。spec-sync 把已确认的
-目标、非目标、硬约束和验收标准写回项目已有的文档——不需要
-proposal → approve → archive 生命周期，也不新增任何制品——下一个
-session 就不会把你已经否掉的方案重新做一遍。
-
-如果你觉得裸用 coding agent 不够稳，但又不想再加一层编排系统，这个项目
-就是为这种需求设计的。
+一个适用于 Claude Code 和 Codex 的轻量插件。它帮助你查清复杂故障的根因，并把已经确认、后续会话还要用的项目决定写回现行规格。方案讨论和测试驱动开发可以按需调用。
 
 ## 安装
 
 ### Codex
 
-```bash
+```text
 codex plugin marketplace add chipfighter/coding-discipline
 codex plugin add coding-discipline@coding-discipline
 ```
 
-安装后新开一个 task。首次启用 hook 或 hook 内容变化时，Codex 会要求审核；
-用 `/hooks` 查看并信任。
+安装后新开一个对话。测试本地副本时，在仓库根目录执行以下命令，替换第一条命令。
 
-测试本地 checkout 时，把第一条命令换成：
-
-```bash
+```text
 codex plugin marketplace add .
 ```
 
@@ -70,175 +26,71 @@ codex plugin marketplace add .
 /plugin install coding-discipline@coding-discipline
 ```
 
-第一条命令把本仓库添加为自托管插件源，第二条安装插件。安装后新开一个
-session。本地测试时，把第一条中的仓库名换成本地路径。
+安装后新开一个会话。测试本地副本时，把第一条命令中的 `chipfighter/coding-discipline` 换成本地路径。
 
-### 只安装 skills，不安装 hooks（Codex 及其他宿主）
+### 单独安装 Codex 技能
 
-8 个 skill 都是符合 [agentskills.io](https://agentskills.io) 规范的普通
-`SKILL.md`：合规的 `name`、不超过 1024 字符的 description，以及每个文件
-自带的 `license`——这样单独拷走的 skill 仍然带着授权条款。CI 会强制这三
-条限制，因为 Claude Code 对它们都很宽松，一旦违反，在这里照常工作，拷到
-别的宿主却会静默失败。
-
-Codex 原生支持 `SKILL.md`：
+在仓库根目录把需要的技能目录复制到 `~/.agents/skills/`。保留完整目录，Codex 才能读取其中的调用设置。
 
 ```bash
 mkdir -p ~/.agents/skills
 cp -r plugins/coding-discipline/skills/* ~/.agents/skills/
 ```
 
-Windows PowerShell：
+Windows PowerShell
 
 ```powershell
-Copy-Item -Recurse "plugins\coding-discipline\skills\*" "$HOME\.agents\skills\"
+$skillDirectory = Join-Path $HOME ".agents/skills"
+New-Item -ItemType Directory -Force -Path $skillDirectory | Out-Null
+Copy-Item -Recurse "plugins/coding-discipline/skills/*" $skillDirectory
 ```
 
-这种方式没有 SessionStart 注入、用量计数和项目引导文档骨架。如果需要
-全局纪律总纲，请先审核
-`plugins/coding-discipline/hooks/skill-discipline.md`，再把它合并到
-`~/.codex/AGENTS.md`，不要重复追加。
+插件无需安装 Bash，也没有启动钩子和用量记录。
 
-## 8 个 skills
+## 技能
 
-每个 skill 的 description 同时定义触发条件和排除条件。只有 skill 被选中
-后才加载完整正文。
+| 技能 | 调用方式 | 适用场景 |
+|---|---|---|
+| `systematic-debugging` | 自动或手动 | 根因不明、故障跨组件，或上次修复没奏效。先收集证据、追查根因，再验证修复。 |
+| `spec-sync` | 自动或手动 | 已确认的目标、非目标、约束或验收标准会改变后续会话的工作。找到现行规格，只更新相关原文。 |
+| `brainstorming` | 手动 | 一个设计决策会实质影响结果，或选错代价很高，需要先讨论取舍。 |
+| `tdd` | 手动 | 某个行为值得用针对性的自动化测试覆盖时，采用先写失败测试、再实现、最后重构的流程。 |
 
-| skill | 什么时候触发 |
-|---|---|
-| `spec-sync` | 已确认的目标、非目标、约束或验收需要跨 session 保留，但当前真源过期或缺失 |
-| `brainstorming` | 需求有多种合理理解、设计需要取舍，或改错代价高 |
-| `tdd` | 新增或修改的行为可以用自动化回归测试验证 |
-| `systematic-debugging` | bug、失败或非预期行为的根因尚未确定 |
-| `code-review` | 改动影响多个模块的配合、跨越高风险边界，或用户明确要求评审 |
-| `verify-before-done` | 宣称完成、修复、测试通过或可以交付之前 |
-| `git-flow` | 分支、worktree、提交、tag 或分支收尾 |
-| `context-hygiene` | 进入项目、读取项目历史或处理互相冲突的文档 |
+在 Codex 中输入 `$` 并选中对应技能。在 Claude Code 中使用插件命令，例如 `/coding-discipline:brainstorming` 或 `/coding-discipline:tdd`。
 
-这些 skill 故意保持很短，只保留模型经常跳过的硬判断规则；普通的规划和
-执行仍由 harness 负责。
+日常审查和 worktree 管理由宿主提供。项目专用的审查要求、Git 约定和验收命令写在仓库指令里。最后一次相关修改后，执行足以支撑结论的检查，说明实测结果和未验证项。合并前必须通过的检查交给 CI 和分支保护。
 
-## 2 个 hooks
+## 项目指令
 
-- **SessionStart 纪律总纲**：注入一段精简、平台中立的纪律，要求正式调用
-  命中的 skill，维护指令优先级，并要求 agent 用用户的语言回答、用仓库
-  已有语言编写文件和注释。Hook 会按各宿主自己的文档输出对应信封——
-  Claude Code 和 Codex 用 `hookSpecificOutput.additionalContext`，Cursor 用
-  `additional_context`，Copilot 用顶层 `additionalContext`——并只追加该宿主
-  自己的调用说明。四种信封形状都有测试覆盖；日常在用的是 Claude Code 和
-  Codex，所以在你自己跑通之前，请把 Cursor 和 Copilot 当作"符合规范但未
-  实测"。
-- **被动本地用量计数**：把 session 激活记录追加到
-  `~/.coding-discipline/usage.jsonl`。Claude Code 还可以记录每个 skill
-  的调用，并附上所属 session 的 id。每条记录都保留运行时所在的目录，而且在
-  各个宿主上写法一致，所以项目删除之后，用量仍能对应到具体项目。数据不会上传。
+保留已有的 `AGENTS.md` 和 `CLAUDE.md`。插件已取消启动时自动创建这两个文件的行为。项目确实需要指令时，用对应工具的 `/init` 初始化。适合写进去的是现行规格的入口、测试命令，以及仅凭代码难以推断的约定。
 
-按宿主、skill 和项目查看本地汇总；传入项目名之类的关键词可以只看相关记录：
+Codex 和新版 Claude Code 可以共用 `AGENTS.md`。如果仓库需要独立的 `CLAUDE.md`，在里面用 `@AGENTS.md` 引入共享规则，再补充 Claude 专用指令。 [Claude Code 项目指令](https://code.claude.com/docs/en/memory#share-one-file-with-other-coding-tools)
 
-```bash
-bash plugins/coding-discipline/hooks/skills-count.sh
-```
+## 反馈与安全
 
-关闭计数：
+自动调用可能误触发或漏触发。遇到这两种情况，或者手动调用失败，可以使用[路由反馈模板](.github/ISSUE_TEMPLATE/routing-feedback.md)。
 
-```bash
-CD_USAGE_ENABLED=0
-```
-
-只关闭纪律总纲，保留计数和引导文档生成：
-
-```bash
-CD_PRIMER=0
-```
-
-总纲是每个 session 都要付的固定开销。它值不值这个开销，取决于你自己的工作
-负载，不是本项目单方面能替你下结论的事。这个开关的意义就在于让它可被回答：
-同样一批任务，开和关各跑一遍，比较结果。
-
-## 自动生成项目引导文档
-
-第一次在 Git 仓库中开启 session 时，如果目标文件不存在，插件会创建一份
-空骨架：
-
-- Claude Code → `CLAUDE.md`
-- Codex → `AGENTS.md`
-
-即使从子目录或 worktree 启动，文件也只会生成在仓库根目录。已有文件永不
-覆盖。设置 `CD_SEED_AGENT_DOC=0` 可以关闭。
-
-英文骨架故意保持精简，只应记录已经确认、且无法从代码推断的项目事实。
-Agent 仍然会用用户的语言回答。引导文档是共享的项目上下文，不是本机缓存：
-团队和后续 session 需要的已确认规则通常应该提交到仓库，但绝不能在里面写
-密钥、令牌或个人隐私。
-
-## 能力边界
-
-Skill 是提示词层面的纪律，不是确定性规则引擎。它能降低失败概率，但不能
-保证路由和执行永远正确。
-
-需要更强约束时：
-
-- 不想让模型判断路由，就显式调用 skill；
-- 把仓库专属硬规则写进该项目的 `CLAUDE.md` 或 `AGENTS.md`；
-- 把机械性要求交给 CI、lint、测试、分支保护和 required review。
-
-误触发和漏触发请通过仓库的 routing feedback issue 模板反馈。回归案例只
-从真实失败中生长，不维护人工场景发版套件。
-
-## 安全
-
-Skill 本身就是可执行的上下文：它写什么，都会进入一个已经握着你的凭据和
-文件系统的 agent。2026 年对公开 skill 目录的扫描发现，其中相当一部分带有
-提示词注入和凭据外传，所以本插件把"我们的 skill 是干净的"当成一个需要被
-检验的声明，而不是一句承诺。
-
-`tests/test-skill-safety.py` 会扫描所有随插件分发的文件，检查已知的攻击
-类型——网络外传、凭据与私钥路径、管道进 shell、解码或间接执行，以及会对
-人眼隐藏指令的不可见/双向控制字符。每条规则都带一个必须命中的样本，所以
-一条悄悄失效的规则会让构建失败，而不是永远报告通过。CI 在 Ubuntu 和
-Windows 上都会执行。
-
-本插件不发起任何网络请求，也不上报任何遥测。它在你的仓库之外唯一的写入
-是本地用量日志 `~/.coding-discipline/usage.jsonl`；如果这个位置发生变化，
-测试会失败，提醒重新核对上面这条声明。
-
-```bash
-python tests/test-skill-safety.py
-```
-
-## 依赖
-
-- **bash**：macOS 和 Linux 自带；Windows 安装
-  [Git for Windows](https://git-scm.com/download/win)，`run-hook.cmd`
-  会找到 Git Bash，并避免误用 WSL 的 `bash.exe`。
-- 不需要 `jq`：JSON 转义和本地记录全部使用纯 bash。
+`tests/test-skill-safety.py` 扫描插件分发的文件，检查凭据路径、网络外传、进入 shell 的管道、解码执行和隐藏或双向 Unicode 字符等已知模式。每条规则都用一个应命中的样本验证。
 
 ## 开发与验证
 
-```bash
+```text
 python tests/test-plugin-metadata.py
 python tests/test-skill-safety.py
-bash tests/test-hooks.sh
 ```
 
-Windows：
+GitHub Actions 会在 Ubuntu 和 Windows 上执行这两项检查。安装了 Claude Code 的话，还可以使用它的校验命令检查插件源、插件和技能。
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-windows-hook.ps1
+```text
+claude plugin validate --strict .
+claude plugin validate --strict plugins/coding-discipline
+claude plugin validate --strict plugins/coding-discipline/skills
 ```
-
-元数据测试把英文固定上下文基线冻结为 4580 个字符（v0.8.0 时为 4944，
-去重删减后重新冻结）：SessionStart 总纲与 8 条 skill description 的总长度
-不能增长，除非从其他位置删掉等量内容。GitHub Actions 会在 Ubuntu 和 Windows 上执行相同验证。
 
 ## 致谢
 
-纪律理念与跨平台 hook 基础——包括 polyglot `run-hook.cmd`、SessionStart
-注入和纯 bash JSON 转义——来自 Jesse Vincent 的
-[Superpowers](https://github.com/obra/superpowers)（MIT）。本项目把这套
-基础收敛为不接管工作流的护栏层，并加入 spec 同步、风险触发路由和
-Windows / Git-Bash 支持。
+本项目早期的工程纪律和跨平台钩子设计受到 Jesse Vincent 的 [Superpowers](https://github.com/obra/superpowers)（MIT）启发。
 
-## License
+## 许可证
 
-MIT — 见 [LICENSE](LICENSE)。
+MIT · [LICENSE](LICENSE)

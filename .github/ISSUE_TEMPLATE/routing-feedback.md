@@ -1,21 +1,17 @@
 ---
-name: Routing feedback (false trigger / missed trigger)
-about: A skill triggered when it should not have, or failed to trigger when it should
+name: Skill invocation feedback
+about: Report an unexpected skill invocation or an invocation that was missed or failed
 labels: routing
 ---
 
-**Type** (keep one): false trigger / missed trigger
+**Type** (keep one) · false trigger / missed trigger / explicit invocation failed
 
-**Skill involved**:
+**Skill and explicit command, if any**
 
-**Original task prompt** (paste it as closely as possible):
+**Original task prompt**
 
-**Expected behavior**:
+**Expected behavior**
 
-**Actual behavior**:
+**Actual behavior**
 
-**Model**:
-
-**Harness**: Claude Code / Codex / other
-
-**Was the skill invoked explicitly?**: yes / no
+**Plugin version, model, and host version**

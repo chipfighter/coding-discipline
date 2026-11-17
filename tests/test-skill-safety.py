@@ -71,16 +71,16 @@ for label, pattern, sample in RULES:
     assert pattern.search(sample), f"rule went inert and matches nothing: {label}"
 
 
-tracked = subprocess.check_output(
-    ["git", "ls-files", "--", SHIPPED],
+shipped_files = subprocess.check_output(
+    ["git", "ls-files", "--cached", "--others", "--exclude-standard", "--", SHIPPED],
     cwd=ROOT,
     text=True,
 ).splitlines()
-assert tracked, f"no tracked files under {SHIPPED}"
+assert shipped_files, f"no files under {SHIPPED}"
 
 findings: list[str] = []
 scanned = 0
-for relative in tracked:
+for relative in shipped_files:
     path = ROOT / relative
     if not path.is_file():
         continue
@@ -96,13 +96,5 @@ for relative in tracked:
             findings.append(f"{relative}:{line}: {label} -> {match.group(0)!r}")
 
 assert not findings, "shipped plugin surface failed the safety scan:\n" + "\n".join(findings)
-
-# The plugin's only persistence is the local usage log. If that sink ever moves,
-# the "nothing is sent over the network" claim in README.md needs re-checking
-# rather than inheriting the trust this test grants it today.
-usage_lib = (ROOT / SHIPPED / "hooks" / "usage-lib.sh").read_text(encoding="utf-8")
-assert 'CD_USAGE_LOG="${CD_USAGE_LOG:-$HOME/.coding-discipline/usage.jsonl}"' in usage_lib, (
-    "the local usage sink moved; re-confirm the no-network privacy claim in README.md"
-)
 
 print(f"skill safety tests passed ({scanned} shipped files scanned)")
